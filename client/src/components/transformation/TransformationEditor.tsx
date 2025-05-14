@@ -37,9 +37,11 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [transformationId, setTransformationId] = useState<number | null>(null);
   const [brightness, setBrightness] = useState(50);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transformedImageUrl, setTransformedImageUrl] = useState<string | null>(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [contrast, setContrast] = useState(50);
-  const [transformedImageUrl, setTransformedImageUrl] = useState('');
-  const [originalImageUrl, setOriginalImageUrl] = useState('');
   const [transformationName, setTransformationName] = useState('');
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -112,7 +114,9 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
               fabricCanvas.clear();
               fabricCanvas.add(imgInstance);
               fabricCanvas.renderAll();
-              fabricCanvas.setBackgroundColor('#f8fafc', fabricCanvas.renderAll.bind(fabricCanvas));
+              // Set background color using appropriate method
+              fabricCanvas.backgroundColor = '#f8fafc';
+              fabricCanvas.renderAll();
             } catch (error) {
               console.error('Error adding image to canvas:', error);
             }
@@ -602,7 +606,7 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
           {currentStep === 'style' && (
             <LoadingButton 
               onClick={handleSubmitTransformation} 
-              loading={isSubmitting}
+              isLoading={isSubmitting}
               disabled={isSubmitting}
             >
               Transformar Imagen
