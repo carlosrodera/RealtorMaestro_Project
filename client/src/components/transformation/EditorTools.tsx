@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fabric } from 'fabric';
+import * as fabric from 'fabric';
 import { Button } from '@/components/ui/button';
 import { Brush, Eraser, MousePointer, Type, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';

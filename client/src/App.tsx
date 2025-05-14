@@ -13,6 +13,7 @@ import Transformations from "@/pages/transformations";
 import Descriptions from "@/pages/descriptions";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/use-auth";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
@@ -92,10 +93,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

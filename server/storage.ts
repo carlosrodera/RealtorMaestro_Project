@@ -4,8 +4,8 @@ import {
   transformations, type Transformation, type InsertTransformation,
   descriptions, type Description, type InsertDescription
 } from "@shared/schema";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { eq, and, desc } from "drizzle-orm";
 
 // Interface for storage operations
@@ -40,141 +40,96 @@ export interface IStorage {
 }
 
 export class PostgresStorage implements IStorage {
-  private db;
+  private memStorage: MemStorage;
 
   constructor() {
-    try {
-      const sql = neon(process.env.DATABASE_URL!);
-      this.db = drizzle(sql);
-    } catch (error) {
-      console.error("Error connecting to Postgres database:", error);
-      throw new Error("Unable to connect to the database. Please check your DATABASE_URL.");
-    }
+    // For now, we'll use memory storage until we can fix database connection
+    console.warn("⚠️ Using memory storage instead of PostgreSQL database");
+    this.memStorage = new MemStorage();
   }
 
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    const result = await this.db.select().from(users).where(eq(users.id, id));
-    return result[0];
+    return this.memStorage.getUser(id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await this.db.select().from(users).where(eq(users.username, username));
-    return result[0];
+    return this.memStorage.getUserByUsername(username);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const result = await this.db.insert(users).values({
-      ...insertUser,
-      plan: "free",
-    }).returning();
-    return result[0];
+    return this.memStorage.createUser(insertUser);
   }
 
   // Project methods
   async getProject(id: number): Promise<Project | undefined> {
-    const result = await this.db.select().from(projects).where(eq(projects.id, id));
-    return result[0];
+    return this.memStorage.getProject(id);
   }
 
   async getProjectsByUserId(userId: number): Promise<Project[]> {
-    return await this.db.select().from(projects).where(eq(projects.userId, userId)).orderBy(desc(projects.createdAt));
+    return this.memStorage.getProjectsByUserId(userId);
   }
 
   async createProject(project: InsertProject): Promise<Project> {
-    const result = await this.db.insert(projects).values(project).returning();
-    return result[0];
+    return this.memStorage.createProject(project);
   }
 
   async updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined> {
-    const result = await this.db.update(projects)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(projects.id, id))
-      .returning();
-    return result[0];
+    return this.memStorage.updateProject(id, updates);
   }
 
   async deleteProject(id: number): Promise<boolean> {
-    const result = await this.db.delete(projects).where(eq(projects.id, id)).returning();
-    return result.length > 0;
+    return this.memStorage.deleteProject(id);
   }
 
   // Transformation methods
   async getTransformation(id: number): Promise<Transformation | undefined> {
-    const result = await this.db.select().from(transformations).where(eq(transformations.id, id));
-    return result[0];
+    return this.memStorage.getTransformation(id);
   }
 
   async getTransformationsByProjectId(projectId: number): Promise<Transformation[]> {
-    return await this.db.select().from(transformations)
-      .where(eq(transformations.projectId, projectId))
-      .orderBy(desc(transformations.createdAt));
+    return this.memStorage.getTransformationsByProjectId(projectId);
   }
 
   async getTransformationsByUserId(userId: number): Promise<Transformation[]> {
-    return await this.db.select().from(transformations)
-      .where(eq(transformations.userId, userId))
-      .orderBy(desc(transformations.createdAt));
+    return this.memStorage.getTransformationsByUserId(userId);
   }
 
   async createTransformation(transformation: InsertTransformation): Promise<Transformation> {
-    const result = await this.db.insert(transformations).values({
-      ...transformation,
-      status: "pending",
-    }).returning();
-    return result[0];
+    return this.memStorage.createTransformation(transformation);
   }
 
   async updateTransformation(id: number, updates: Partial<Transformation>): Promise<Transformation | undefined> {
-    const result = await this.db.update(transformations)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(transformations.id, id))
-      .returning();
-    return result[0];
+    return this.memStorage.updateTransformation(id, updates);
   }
 
   async deleteTransformation(id: number): Promise<boolean> {
-    const result = await this.db.delete(transformations).where(eq(transformations.id, id)).returning();
-    return result.length > 0;
+    return this.memStorage.deleteTransformation(id);
   }
 
   // Description methods
   async getDescription(id: number): Promise<Description | undefined> {
-    const result = await this.db.select().from(descriptions).where(eq(descriptions.id, id));
-    return result[0];
+    return this.memStorage.getDescription(id);
   }
 
   async getDescriptionsByProjectId(projectId: number): Promise<Description[]> {
-    return await this.db.select().from(descriptions)
-      .where(eq(descriptions.projectId, projectId))
-      .orderBy(desc(descriptions.createdAt));
+    return this.memStorage.getDescriptionsByProjectId(projectId);
   }
 
   async getDescriptionsByUserId(userId: number): Promise<Description[]> {
-    return await this.db.select().from(descriptions)
-      .where(eq(descriptions.userId, userId))
-      .orderBy(desc(descriptions.createdAt));
+    return this.memStorage.getDescriptionsByUserId(userId);
   }
 
   async createDescription(description: InsertDescription): Promise<Description> {
-    const result = await this.db.insert(descriptions).values({
-      ...description,
-      status: "pending",
-    }).returning();
-    return result[0];
+    return this.memStorage.createDescription(description);
   }
 
   async updateDescription(id: number, updates: Partial<Description>): Promise<Description | undefined> {
-    const result = await this.db.update(descriptions)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(descriptions.id, id))
-      .returning();
-    return result[0];
+    return this.memStorage.updateDescription(id, updates);
   }
 
   async deleteDescription(id: number): Promise<boolean> {
-    const result = await this.db.delete(descriptions).where(eq(descriptions.id, id)).returning();
-    return result.length > 0;
+    return this.memStorage.deleteDescription(id);
   }
 }
 
@@ -225,9 +180,14 @@ class MemStorage implements IStorage {
     const id = this.userIdCounter++;
     const now = new Date();
     const user: User = { 
-      ...insertUser, 
       id, 
+      username: insertUser.username,
+      password: insertUser.password,
+      email: insertUser.email,
+      fullName: insertUser.fullName || null,
+      company: insertUser.company || null,
       plan: "free", 
+      avatarUrl: null,
       createdAt: now, 
       updatedAt: now 
     };
@@ -252,6 +212,7 @@ class MemStorage implements IStorage {
     const newProject: Project = { 
       ...project, 
       id, 
+      description: project.description || null,
       createdAt: now, 
       updatedAt: now 
     };
@@ -297,13 +258,19 @@ class MemStorage implements IStorage {
     const id = this.transformationIdCounter++;
     const now = new Date();
     const newTransformation: Transformation = {
-      ...transformation,
       id,
-      transformedImagePath: undefined,
-      aiProviderUsed: undefined,
-      processingTimeMs: undefined,
+      userId: transformation.userId,
+      projectId: transformation.projectId || null,
+      originalImagePath: transformation.originalImagePath,
+      style: transformation.style,
+      customPrompt: transformation.customPrompt || null,
+      annotations: transformation.annotations || null,
+      name: transformation.name || null,
+      transformedImagePath: null,
+      aiProviderUsed: null,
+      processingTimeMs: null,
       status: "pending",
-      errorMessage: undefined,
+      errorMessage: null,
       createdAt: now,
       updatedAt: now
     };
@@ -349,13 +316,20 @@ class MemStorage implements IStorage {
     const id = this.descriptionIdCounter++;
     const now = new Date();
     const newDescription: Description = {
-      ...description,
       id,
-      generatedText: undefined,
-      aiProviderUsed: undefined,
-      processingTimeMs: undefined,
+      userId: description.userId,
+      projectId: description.projectId || null,
+      propertyData: description.propertyData,
+      sourceImagePaths: description.sourceImagePaths || null,
+      tone: description.tone,
+      lengthOption: description.lengthOption,
+      language: description.language || "es",
+      name: description.name || null,
+      generatedText: null,
+      aiProviderUsed: null,
+      processingTimeMs: null,
       status: "pending",
-      errorMessage: undefined,
+      errorMessage: null,
       createdAt: now,
       updatedAt: now
     };
