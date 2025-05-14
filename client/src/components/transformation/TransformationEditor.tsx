@@ -524,7 +524,10 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
   
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent 
+        className="sm:max-w-4xl"
+        aria-describedby="transformation-description"
+      >
         <DialogHeader>
           <DialogTitle>
             {currentStep === 'upload' && 'Transformación de Imagen'}
@@ -532,6 +535,9 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
             {currentStep === 'style' && 'Seleccionar Estilo de Diseño'}
             {currentStep === 'result' && 'Resultado de la Transformación'}
           </DialogTitle>
+          <div id="transformation-description" className="sr-only">
+            Editor para transformar imágenes de propiedades inmobiliarias
+          </div>
         </DialogHeader>
         
         {renderStepIndicator()}
