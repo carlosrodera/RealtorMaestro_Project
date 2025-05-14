@@ -87,9 +87,15 @@ export function TransformationItem({ transformation }: TransformationItemProps) 
       
       {isCompleted && (
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-3xl">
+          <DialogContent 
+            className="sm:max-w-3xl"
+            aria-describedby="transformation-preview-info"
+          >
             <DialogHeader>
               <DialogTitle>{transformation.name || "Vista previa de transformación"}</DialogTitle>
+              <div id="transformation-preview-info" className="sr-only">
+                Vista detallada de la imagen inmobiliaria transformada con herramientas de comparación
+              </div>
             </DialogHeader>
             
             <div className="mt-4">

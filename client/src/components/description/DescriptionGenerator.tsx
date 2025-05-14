@@ -382,7 +382,10 @@ export function DescriptionGenerator({ isOpen, onClose, projectId }: Description
   
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent 
+        className="sm:max-w-4xl"
+        aria-describedby="description-generator-info"
+      >
         <DialogHeader>
           <DialogTitle>
             {currentStep === 'property-info' && 'Generación de Descripción'}
@@ -390,6 +393,9 @@ export function DescriptionGenerator({ isOpen, onClose, projectId }: Description
             {currentStep === 'style' && 'Configuración de Estilo'}
             {currentStep === 'result' && 'Descripción Generada'}
           </DialogTitle>
+          <div id="description-generator-info" className="sr-only">
+            Herramienta para generar descripciones profesionales de propiedades inmobiliarias
+          </div>
         </DialogHeader>
         
         {renderStepIndicator()}
