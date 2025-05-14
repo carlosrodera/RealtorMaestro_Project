@@ -139,10 +139,8 @@ export default function Login() {
           <CardFooter className="flex justify-center">
             <p className="text-sm text-gray-600">
               ¿No tienes una cuenta?{' '}
-              <Link href="/register">
-                <a className="font-medium text-primary hover:underline">
-                  Regístrate
-                </a>
+              <Link href="/register" className="font-medium text-primary hover:underline">
+                Regístrate
               </Link>
             </p>
           </CardFooter>
@@ -151,13 +149,13 @@ export default function Login() {
         <div className="text-center">
           <p className="text-xs text-gray-500">
             Al iniciar sesión, aceptas nuestros{' '}
-            <a href="#" className="text-primary hover:underline">
+            <span className="text-primary hover:underline cursor-pointer">
               Términos de servicio
-            </a>{' '}
+            </span>{' '}
             y{' '}
-            <a href="#" className="text-primary hover:underline">
+            <span className="text-primary hover:underline cursor-pointer">
               Política de privacidad
-            </a>
+            </span>
           </p>
         </div>
       </div>

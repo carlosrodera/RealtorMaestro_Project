@@ -117,15 +117,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: RegisterData) => {
     dispatch({ type: "REGISTER_START" });
     try {
+      console.log("Attempting registration with username:", userData.username);
       const res = await apiRequest("POST", "/api/auth/register", userData);
       const user = await res.json();
+      console.log("Registration successful:", user);
       dispatch({ type: "REGISTER_SUCCESS", payload: user });
     } catch (error) {
       let errorMessage = "Error al registrarse";
       if (error instanceof Error) {
         errorMessage = error.message;
+        console.error("Registration error:", errorMessage);
       }
       dispatch({ type: "REGISTER_FAILURE", payload: errorMessage });
+      throw error; // Rethrow to let the hook handle it
     }
   };
 
@@ -133,14 +137,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     dispatch({ type: "LOGOUT_START" });
     try {
+      console.log("Attempting to logout");
       await apiRequest("POST", "/api/auth/logout", {});
+      console.log("Logout successful");
       dispatch({ type: "LOGOUT_SUCCESS" });
     } catch (error) {
       let errorMessage = "Error al cerrar sesión";
       if (error instanceof Error) {
         errorMessage = error.message;
+        console.error("Logout error:", errorMessage);
       }
       dispatch({ type: "LOGOUT_FAILURE", payload: errorMessage });
+      throw error; // Rethrow to let the hook handle it
     }
   };
 
