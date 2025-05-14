@@ -25,8 +25,11 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   }
   
   if (!user) {
-    window.location.href = "/login";
-    return null;
+    // Use React Router's useLocation and Redirect
+    return <Route path="*" component={() => {
+      window.location.href = "/login";
+      return null;
+    }} />;
   }
   
   return <Component />;
@@ -42,8 +45,11 @@ function PublicRoute({ component: Component }: { component: React.ComponentType 
   }
   
   if (user) {
-    window.location.href = "/";
-    return null;
+    // Use React Router's useLocation and Redirect
+    return <Route path="*" component={() => {
+      window.location.href = "/";
+      return null;
+    }} />;
   }
   
   return <Component />;

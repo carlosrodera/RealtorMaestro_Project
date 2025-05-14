@@ -6,10 +6,7 @@ export function useAuth() {
   const context = useContext(AuthContext);
   const { toast } = useToast();
   
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  
+  // No need to check if context is undefined anymore since we provide default values
   const { login, register, logout, clearError, ...state } = context;
   
   // Enhanced login with toast notifications

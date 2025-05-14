@@ -4,7 +4,15 @@ import { apiRequest } from "@/lib/queryClient";
 import { User } from "@shared/schema";
 
 // Create context
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isLoading: true,
+  error: null,
+  login: async () => { throw new Error("Function not implemented") },
+  register: async () => { throw new Error("Function not implemented") },
+  logout: async () => { throw new Error("Function not implemented") },
+  clearError: () => { /* Function not implemented */ }
+});
 
 // Define action types
 type AuthAction =
@@ -81,7 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log("User authenticated:", user);
           dispatch({ type: "LOGIN_SUCCESS", payload: user });
         } else {
-          console.log("Authentication failed:", await res.text());
+          const errorText = await res.text();
+          console.log("Authentication failed:", errorText);
           dispatch({ type: "LOGOUT_SUCCESS" });
         }
       } catch (error) {
