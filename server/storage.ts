@@ -405,5 +405,21 @@ class MemStorage implements IStorage {
 }
 
 // Choose the storage implementation based on environment
-const usePostgres = process.env.DATABASE_URL !== undefined;
+let usePostgres = false;
+
+// Try to check database connection
+try {
+  const DATABASE_URL = process.env.DATABASE_URL;
+  if (DATABASE_URL) {
+    // Just testing if we can parse the URL
+    const url = new URL(DATABASE_URL);
+    usePostgres = true;
+    console.log("Database URL found, will try to use PostgreSQL storage");
+  } else {
+    console.log("No DATABASE_URL found, using in-memory storage");
+  }
+} catch (error) {
+  console.error("Invalid DATABASE_URL, using in-memory storage:", error);
+}
+
 export const storage = usePostgres ? new PostgresStorage() : new MemStorage();
