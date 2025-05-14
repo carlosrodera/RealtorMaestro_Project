@@ -53,48 +53,80 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
   // Initialize canvas when editor opens
   useEffect(() => {
     if (isOpen && currentStep === 'edit' && canvasRef.current && !canvas) {
-      const fabricCanvas = new fabric.Canvas(canvasRef.current, {
-        width: canvasContainerRef.current?.clientWidth || 800,
-        height: 450,
-        backgroundColor: '#f1f5f9'
-      });
-      setCanvas(fabricCanvas);
-      
-      // Add the selected image to canvas
-      if (selectedImage) {
-        fabric.Image.fromURL(selectedImage.preview, (img) => {
-          // Scale image to fit canvas while maintaining aspect ratio
-          const canvasWidth = fabricCanvas.getWidth();
-          const canvasHeight = fabricCanvas.getHeight();
-          
-          const imgWidth = img.width || 0;
-          const imgHeight = img.height || 0;
-          
-          const scaleFactor = Math.min(
-            canvasWidth / imgWidth,
-            canvasHeight / imgHeight
-          );
-          
-          img.scale(scaleFactor);
-          
-          // Center the image on canvas
-          img.set({
-            left: (canvasWidth - imgWidth * scaleFactor) / 2,
-            top: (canvasHeight - imgHeight * scaleFactor) / 2,
-            selectable: false,
-          });
-          
-          fabricCanvas.add(img);
-          fabricCanvas.renderAll();
+      try {
+        console.log('Initializing canvas...');
+        const fabricCanvas = new fabric.Canvas(canvasRef.current, {
+          width: canvasContainerRef.current?.clientWidth || 800,
+          height: 450,
+          backgroundColor: '#f1f5f9'
         });
+        
+        // Initialize the drawing brush
+        if (!fabricCanvas.freeDrawingBrush) {
+          fabricCanvas.freeDrawingBrush = new fabric.PencilBrush(fabricCanvas);
+          fabricCanvas.freeDrawingBrush.width = 10;
+          fabricCanvas.freeDrawingBrush.color = 'rgba(38, 132, 255, 0.6)';
+        }
+        
+        setCanvas(fabricCanvas);
+        
+        // Add the selected image to canvas
+        if (selectedImage) {
+          console.log('Adding image to canvas...');
+          fabric.Image.fromURL(selectedImage.preview, (img) => {
+            try {
+              if (!img) {
+                console.error('Failed to load image');
+                return;
+              }
+              
+              // Scale image to fit canvas while maintaining aspect ratio
+              const canvasWidth = fabricCanvas.getWidth();
+              const canvasHeight = fabricCanvas.getHeight();
+              
+              const imgWidth = img.width || 0;
+              const imgHeight = img.height || 0;
+              
+              if (imgWidth === 0 || imgHeight === 0) {
+                console.error('Image has invalid dimensions');
+                return;
+              }
+              
+              const scaleFactor = Math.min(
+                canvasWidth / imgWidth,
+                canvasHeight / imgHeight
+              );
+              
+              img.scale(scaleFactor);
+              
+              // Center the image on canvas
+              img.set({
+                left: (canvasWidth - imgWidth * scaleFactor) / 2,
+                top: (canvasHeight - imgHeight * scaleFactor) / 2,
+                selectable: false,
+              });
+              
+              fabricCanvas.add(img);
+              fabricCanvas.renderAll();
+            } catch (error) {
+              console.error('Error adding image to canvas:', error);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing canvas:', error);
       }
     }
     
     // Clean up canvas when component unmounts or step changes
     return () => {
       if (canvas && currentStep !== 'edit') {
-        canvas.dispose();
-        setCanvas(null);
+        try {
+          canvas.dispose();
+          setCanvas(null);
+        } catch (error) {
+          console.error('Error disposing canvas:', error);
+        }
       }
     };
   }, [isOpen, currentStep, selectedImage, canvas]);
