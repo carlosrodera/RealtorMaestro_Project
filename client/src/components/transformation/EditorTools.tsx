@@ -14,6 +14,12 @@ export function EditorTools({ canvas }: EditorToolsProps) {
   const [activeTool, setActiveTool] = useState<Tool | null>(null);
   
   const handleToolClick = (tool: Tool) => {
+    // Check if canvas is properly initialized
+    if (!canvas) {
+      console.error('Canvas is not initialized');
+      return;
+    }
+    
     // Deactivate current tool
     if (activeTool === 'brush' || activeTool === 'eraser') {
       canvas.isDrawingMode = false;
@@ -32,12 +38,24 @@ export function EditorTools({ canvas }: EditorToolsProps) {
     switch (tool) {
       case 'brush':
         canvas.isDrawingMode = true;
+        
+        // Initialize freeDrawingBrush if needed
+        if (!canvas.freeDrawingBrush) {
+          canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+        }
+        
         canvas.freeDrawingBrush.color = 'rgba(38, 132, 255, 0.6)'; // Primary color with transparency
         canvas.freeDrawingBrush.width = 10;
         break;
         
       case 'eraser':
         canvas.isDrawingMode = true;
+        
+        // Initialize freeDrawingBrush if needed
+        if (!canvas.freeDrawingBrush) {
+          canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+        }
+        
         canvas.freeDrawingBrush.color = 'white';
         canvas.freeDrawingBrush.width = 20;
         break;
@@ -70,19 +88,31 @@ export function EditorTools({ canvas }: EditorToolsProps) {
   };
   
   const handleReset = () => {
+    // Check if canvas is properly initialized
+    if (!canvas) {
+      console.error('Canvas is not initialized');
+      return;
+    }
+    
     // Show confirmation
     if (window.confirm('¿Estás seguro? Se perderán todas las anotaciones.')) {
-      // Clear all objects except the background image
-      const objects = canvas.getObjects();
-      if (objects.length > 0) {
-        // Keep only the first object (assumed to be the background image)
-        const backgroundImage = objects[0];
-        canvas.clear();
-        canvas.add(backgroundImage);
-        canvas.renderAll();
+      try {
+        // Clear all objects except the background image
+        const objects = canvas.getObjects();
+        if (objects.length > 0) {
+          // Keep only the first object (assumed to be the background image)
+          const backgroundImage = objects[0];
+          canvas.clear();
+          if (backgroundImage) {
+            canvas.add(backgroundImage);
+          }
+          canvas.renderAll();
+        }
+        
+        setActiveTool(null);
+      } catch (error) {
+        console.error('Error al reiniciar el canvas:', error);
       }
-      
-      setActiveTool(null);
     }
   };
   

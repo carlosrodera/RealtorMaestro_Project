@@ -34,24 +34,24 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <a className="font-bold text-xl text-primary">
+                <div className="font-bold text-xl text-primary cursor-pointer">
                   Realtor<span className="text-secondary">360</span>
-                </a>
+                </div>
               </Link>
             </div>
             
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
-                  <a
+                  <div
                     className={`${
                       location === item.path
                         ? "border-primary text-gray-900"
                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                    } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                    } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer`}
                   >
                     {item.name}
-                  </a>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -84,19 +84,19 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/profile">
-                    <a className="flex w-full">Perfil y Cuenta</a>
+                    <div className="flex w-full cursor-pointer">Perfil y Cuenta</div>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/subscription">
-                    <a className="flex w-full">Suscripción</a>
+                    <div className="flex w-full cursor-pointer">Suscripción</div>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/support">
-                    <a className="flex w-full">Ayuda y Soporte</a>
+                    <div className="flex w-full cursor-pointer">Ayuda y Soporte</div>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

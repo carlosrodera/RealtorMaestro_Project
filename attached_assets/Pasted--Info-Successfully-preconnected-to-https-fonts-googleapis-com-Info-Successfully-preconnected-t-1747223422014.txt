@@ -1,0 +1,102 @@
+[Info] Successfully preconnected to https://fonts.googleapis.com/
+[Info] Successfully preconnected to https://fonts.gstatic.com/
+[Debug] [vite] connecting... (client, line 495)
+[Debug] [vite] connected. (client, line 618)
+[Log] Checking authentication status... (AuthContext.tsx, line 89)
+[Log] Checking authentication status... (AuthContext.tsx, line 89)
+[Log] User authenticated: – Object (AuthContext.tsx, line 95)
+Object
+[Log] User authenticated: – Object (AuthContext.tsx, line 95)
+Object
+[Error] Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+a
+a
+@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:337:27
+div
+div
+div
+div
+div
+Navbar@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/src/components/layout/Navbar.tsx:32:5
+div
+MainLayout@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/src/components/layout/MainLayout.tsx:23:5
+component
+Route@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:323:14
+Switch@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:380:27
+Router
+TooltipProviderProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-VJRUVGTI.js:38:13
+TooltipProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js:62:43
+AuthProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/src/contexts/AuthContext.tsx:84:5
+QueryClientProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js:2805:9
+App
+AuthProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/src/contexts/AuthContext.tsx:84:5
+	printWarning (chunk-WERSD76P.js:521)
+	error (chunk-WERSD76P.js:505)
+	validateDOMNesting (chunk-WERSD76P.js:8256)
+	createInstance (chunk-WERSD76P.js:8328)
+	completeWork (chunk-WERSD76P.js:16290)
+	completeUnitOfWork (chunk-WERSD76P.js:19224)
+	performUnitOfWork (chunk-WERSD76P.js:19206)
+	workLoopSync (chunk-WERSD76P.js:19137)
+	renderRootSync (chunk-WERSD76P.js:19116)
+	performConcurrentWorkOnRoot (chunk-WERSD76P.js:18678:98)
+	workLoop (chunk-WERSD76P.js:197)
+	flushWork (chunk-WERSD76P.js:176)
+	performWorkUntilDeadline (chunk-WERSD76P.js:384)
+[Warning] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. (chunk-CNOJFLXF.js, line 337)
+[Error] TypeError: undefined is not an object (evaluating 'canvas.freeDrawingBrush.color = "rgba(38, 132, 255, 0.6)"')
+	handleToolClick (EditorTools.tsx:40)
+	callCallback2 (chunk-WERSD76P.js:3674)
+	dispatchEvent
+	invokeGuardedCallbackDev (chunk-WERSD76P.js:3699)
+	invokeGuardedCallback (chunk-WERSD76P.js:3733)
+	invokeGuardedCallbackAndCatchFirstError (chunk-WERSD76P.js:3736)
+	executeDispatch (chunk-WERSD76P.js:7014)
+	processDispatchQueueItemsInOrder (chunk-WERSD76P.js:7034)
+	processDispatchQueue (chunk-WERSD76P.js:7043)
+	dispatchEventsForPlugins (chunk-WERSD76P.js:7051)
+	batchedUpdates$1 (chunk-WERSD76P.js:18913)
+	batchedUpdates (chunk-WERSD76P.js:3579)
+	dispatchEventForPluginEventSystem (chunk-WERSD76P.js:7173)
+	dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (chunk-WERSD76P.js:5478)
+	dispatchEvent (chunk-WERSD76P.js:5472:93)
+	dispatchDiscreteEvent (chunk-WERSD76P.js:5449)
+[Error] TypeError: undefined is not an object (evaluating 'canvas.freeDrawingBrush.color = "rgba(38, 132, 255, 0.6)"')
+	rethrowCaughtError (chunk-WERSD76P.js:3750)
+	processDispatchQueue (chunk-WERSD76P.js:7045)
+	dispatchEventsForPlugins (chunk-WERSD76P.js:7051)
+	batchedUpdates$1 (chunk-WERSD76P.js:18913)
+	batchedUpdates (chunk-WERSD76P.js:3579)
+	dispatchEventForPluginEventSystem (chunk-WERSD76P.js:7173)
+	dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (chunk-WERSD76P.js:5478)
+	dispatchEvent (chunk-WERSD76P.js:5472:93)
+	dispatchDiscreteEvent (chunk-WERSD76P.js:5449)
+[Warning] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. (chunk-CNOJFLXF.js, line 337, x2)
+[Error] TypeError: undefined is not an object (evaluating 'canvas.freeDrawingBrush.color = "rgba(38, 132, 255, 0.6)"')
+	handleToolClick (EditorTools.tsx:40)
+	callCallback2 (chunk-WERSD76P.js:3674)
+	dispatchEvent
+	invokeGuardedCallbackDev (chunk-WERSD76P.js:3699)
+	invokeGuardedCallback (chunk-WERSD76P.js:3733)
+	invokeGuardedCallbackAndCatchFirstError (chunk-WERSD76P.js:3736)
+	executeDispatch (chunk-WERSD76P.js:7014)
+	processDispatchQueueItemsInOrder (chunk-WERSD76P.js:7034)
+	processDispatchQueue (chunk-WERSD76P.js:7043)
+	dispatchEventsForPlugins (chunk-WERSD76P.js:7051)
+	batchedUpdates$1 (chunk-WERSD76P.js:18913)
+	batchedUpdates (chunk-WERSD76P.js:3579)
+	dispatchEventForPluginEventSystem (chunk-WERSD76P.js:7173)
+	dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (chunk-WERSD76P.js:5478)
+	dispatchEvent (chunk-WERSD76P.js:5472:93)
+	dispatchDiscreteEvent (chunk-WERSD76P.js:5449)
+[Error] TypeError: undefined is not an object (evaluating 'canvas.freeDrawingBrush.color = "rgba(38, 132, 255, 0.6)"')
+	rethrowCaughtError (chunk-WERSD76P.js:3750)
+	processDispatchQueue (chunk-WERSD76P.js:7045)
+	dispatchEventsForPlugins (chunk-WERSD76P.js:7051)
+	batchedUpdates$1 (chunk-WERSD76P.js:18913)
+	batchedUpdates (chunk-WERSD76P.js:3579)
+	dispatchEventForPluginEventSystem (chunk-WERSD76P.js:7173)
+	dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay (chunk-WERSD76P.js:5478)
+	dispatchEvent (chunk-WERSD76P.js:5472:93)
+	dispatchDiscreteEvent (chunk-WERSD76P.js:5449)
+> Elemento seleccionado
