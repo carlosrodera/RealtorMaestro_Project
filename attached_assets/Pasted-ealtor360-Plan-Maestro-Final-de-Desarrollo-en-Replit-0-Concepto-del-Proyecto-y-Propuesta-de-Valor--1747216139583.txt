@@ -1,0 +1,102 @@
+ealtor360: Plan Maestro Final de Desarrollo en Replit
+0. Concepto del Proyecto y Propuesta de Valor (Fundamentos de Realtor360)
+0.1. Visión General del Producto
+Realtor360 es una plataforma web integral diseñada específicamente para profesionales inmobiliarios. Su objetivo es transformar y optimizar radicalmente el proceso de marketing de propiedades, aumentando el atractivo de los listings y las tasas de conversión mediante el uso inteligente de la Inteligencia Artificial.
+0.2. Funcionalidades Clave
+Transformación de Imágenes con IA:
+Convierte fotografías de espacios vacíos, desactualizados o con mobiliario poco atractivo en ambientes visualmente impactantes y amueblados virtualmente.
+Ofrece una variedad de estilos de diseño para adaptarse al público objetivo de la propiedad.
+Permite la personalización detallada a través de un editor de anotaciones.
+Generación de Descripciones Inmobiliarias con IA:
+Crea textos de listings profesionales, persuasivos y optimizados para SEO.
+Utiliza como base las imágenes de la propiedad, datos básicos proporcionados por el usuario y análisis del entorno.
+Permite ajustar el tono, estilo y longitud de las descripciones.
+0.3. Ventajas Diferenciales Clave
+Característica	Realtor360	Competidores Comunes
+Integración Completa	Transformación de imágenes + descripciones en una única plataforma fluida.	Soluciones separadas, fragmentando el flujo de trabajo.
+Personalización Avanzada	Editor de anotaciones en canvas para cambios específicos, prompts personalizables para IA.	Opciones limitadas, genéricas o sin control granular.
+Velocidad y Eficiencia	Resultados de IA en segundos/minutos, optimizando el tiempo del profesional.	Tiempos de espera más largos, procesos manuales.
+Facilidad de Uso	Interfaz intuitiva y guiada, diseñada para usuarios no técnicos.	Curvas de aprendizaje pronunciadas, interfaces complejas.
+Modelo de Precios Accesible	Modelo Freemium con planes escalables y transparentes.	Costos elevados por transformación, suscripciones rígidas.
+Integración con Ecosistemas	Opciones de exportación a múltiples plataformas y portales inmobiliarios.	Ecosistemas cerrados, exportación manual.
+Experiencia de Usuario (UX)	Dashboard personalizado, sistema de proyectos, modo presentación, PWA.	Funcionalidad básica, UX menos cuidada.
+0.4. Flujos de Usuario Detallados
+0.4.1. Transformación de Imágenes
+Subida de Imagen:
+Usuario sube fotografía(s) de la propiedad.
+IA Opcional: Análisis automático del tipo de espacio (salón, cocina, etc.).
+UX: Recomendaciones de estilos basadas en el análisis o tipo de propiedad.
+Edición y Anotaciones (Canvas):
+Acceso a editor de canvas intuitivo (Fabric.js).
+Herramientas: Pincel (marcar áreas), Borrador (eliminar objetos), Selección (definir zonas), Texto (instrucciones específicas).
+Funciones: Eliminar objetos no deseados, indicar ubicación de muebles específicos, señalar áreas a preservar sin cambios.
+Selección de Estilo:
+Biblioteca de estilos: Moderno, Minimalista, Clásico, Industrial, Nórdico, Mediterráneo, Bohemio, etc. (organizados por categorías).
+UX: Ejemplos visuales (antes/después) para cada estilo.
+Opción de "Prompt Personalizado" para instrucciones de IA detalladas.
+Proceso de Transformación:
+UX: Visualización del progreso (análisis, transformación, optimización), tiempo estimado.
+Backend: Envío de imagen y anotaciones a n8n/Supabase Edge Function para orquestación de IA.
+Resultados y Ajustes:
+UX: Comparativa interactiva (slider) antes/después.
+Opciones de ajuste fino (brillo, contraste, saturación) post-transformación.
+Herramientas de exportación: Descarga (diferentes resoluciones), compartir a redes, integración con portales (Idealista, Fotocasa - futuro), guardar en biblioteca personal del proyecto.
+0.4.2. Generación de Descripciones
+Información Básica de la Propiedad:
+Formulario intuitivo (React Hook Form + Zod): Tipo de propiedad, superficie, habitaciones, baños, precio, año construcción.
+Características Destacables:
+Selección mediante checklists/tags categorizados: Interiores (chimenea, armarios), Exteriores (terraza, jardín), Comunidad (seguridad, gimnasio), Eficiencia energética, Reformas.
+Ubicación y Entorno:
+Inputs para barrio/zona, proximidad a servicios (escuelas, transporte), características del entorno.
+Subida de Imágenes (Contexto para IA):
+Subida múltiple de imágenes relevantes.
+IA Opcional: Etiquetado automático básico (cocina, salón), análisis visual para detectar características no mencionadas.
+Configuración de Tono y Estilo del Texto:
+Selección: Profesional, Emocional, Minimalista, Detallado, Enfocado en inversión.
+Longitud deseada: Corta, Media, Larga.
+Idiomas (inicialmente Español, expandible).
+Generación, Edición y Optimización:
+UX: Visualización de descripción generada.
+Editor de texto avanzado: Sugerencias de mejora, regeneración de párrafos específicos.
+IA Opcional: Verificación SEO (palabras clave recomendadas), corrector gramatical/estilo.
+0.5. Experiencia de Usuario (Principios y Características UX)
+Principios de Diseño: Simplicidad, Progresividad, Feedback Inmediato, Consistencia, Accesibilidad (WCAG).
+Características UX Destacadas:
+Dashboard Personalizado: Actividad reciente, acceso rápido a proyectos, estadísticas de uso, créditos, recomendaciones.
+Sistema de Proyectos: Agrupar transformaciones/descripciones por propiedad, colaboración (futuro), historial de versiones.
+Modo Presentación: Visualización profesional para clientes, comparativas interactivas, recorrido con descripción sincronizada, compartir como página temporal.
+Aplicación Progresiva (PWA): Funcionalidad offline básica (edición de datos de formulario), sincronización automática, notificaciones, instalable.
+0.6. Segmentos de Clientes y Propuesta de Valor Específica
+Agentes Inmobiliarios Individuales: Ahorro drástico de tiempo, mejora calidad visual, descripciones profesionales, mayor interés en listings.
+Fotógrafos Inmobiliarios: Servicio de valor añadido, diferenciación, reducción de retoque manual, paquetes premium.
+Agencias y Portales Inmobiliarios: Mejora catálogo, estandarización visual, descripciones SEO, integración API (futuro).
+Home Stagers Virtuales: Herramienta complementaria, iteraciones rápidas, base para trabajos detallados.
+0.7. Planes y Precios (Modelo Freemium)
+Plan Free: Limitado (ej. 3 transformaciones/mes, 1 descripción/mes, resolución estándar, marca de agua).
+Plan Professional (ej. 29,99€/mes): Mayor volumen (ej. 30 transf., 15 desc.), resolución HD, sin marca, exportación básica.
+Plan Agency (ej. 79,99€/mes): Alto volumen (ej. 100 transf., 50 desc.), 4K, estilos personalizados, colaboración (5 usuarios), API básica.
+Plan Enterprise (Personalizado): Volumen ilimitado, API completa, marca blanca, soporte dedicado.
+(Los detalles exactos de límites y precios se definirán y ajustarán según la estrategia de negocio y feedback).
+0.8. Flujo Técnico Detallado (Resumen de Procesos Clave)
+Transformación de Imágenes:
+Frontend: Subida, anotaciones (Fabric.js).
+Supabase Edge Function (Orquestador): Validación, selección de proveedor IA, preparación de datos.
+n8n Workflow: Preprocesamiento de imagen (calidad, perspectiva), aplicación de estilo/anotaciones vía API de proveedor IA, postprocesamiento (artefactos, texturas), guardado en Supabase Storage.
+Frontend: Visualización de resultado.
+Generación de Descripciones:
+Frontend: Recopilación de datos (formulario, imágenes).
+Supabase Edge Function (Orquestador): Validación, estructuración de datos, selección de proveedor IA (LLM).
+n8n Workflow: Análisis de imágenes (opcional), generación de texto con LLM, refinamiento (SEO, gramática), guardado en DB.
+Frontend: Visualización y edición de descripción.
+0.9. Roadmap de Innovación Futura (Post-Lanzamiento - 12 Meses)
+Q1 (Post-Lanzamiento): Estabilización, optimización, feedback inicial.
+Q2: Transformación de exteriores, cambios de estación/clima, descripciones multilingües.
+Q3: API pública (para CRM), herramientas de colaboración avanzadas, plantillas de descripción.
+Q4: Recorridos virtuales (multi-imagen), vídeos promocionales automáticos, análisis predictivo.
+0.10. Objetivos Estratégicos del Proyecto (Versión 2.0)
+Ampliar la propuesta de valor con la generación de descripciones inmobiliarias.
+Mejorar significativamente la experiencia de usuario en la transformación de imágenes.
+Implementar un sistema robusto y flexible de gestión de usuarios, planes y pagos.
+Optimizar el rendimiento, la escalabilidad y la eficiencia de costes de la aplicación.
+1. Visión General del Proyecto y Rol del Tech Lead en Replit
+Realtor360, como se define en la sección "Concepto del Proyecto y Propuesta de Valor", será una plataforma web de vanguardia, desarrollada en Replit, que revolucionará el marketing inmobiliario. Como Tech Lead, tu misión es dirigir la implementación técnica de esta visión, asegurando una arquitectura robusta, escalable, una experiencia de usuario excepcional y aprovechando al máximo las capacidades del ecosistema Replit.
