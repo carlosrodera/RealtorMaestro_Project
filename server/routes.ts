@@ -13,6 +13,13 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import { z } from "zod";
 
+// Add userId to the session type
+declare module "express-session" {
+  interface SessionData {
+    userId: number;
+  }
+}
+
 // Create a memory store for sessions
 const MemoryStoreSession = MemoryStore(session);
 
@@ -20,16 +27,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Session setup
   app.use(session({
     secret: process.env.SESSION_SECRET || 'realtor360-secret',
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     store: new MemoryStoreSession({
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      secure: false, // Set to true only in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      sameSite: 'lax'
     }
   }));
+  
+  // For debugging session issues
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/auth')) {
+      console.log(`Session ID: ${req.session.id}, User ID: ${req.session.userId || 'none'}`);
+    }
+    next();
+  });
 
   // Authentication middleware
   const authenticateUser = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -82,15 +99,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Don't return password
       const { password: _, ...userWithoutPassword } = user;
       
+      // Set user ID in session and save immediately
       req.session.userId = user.id;
+      await new Promise<void>((resolve, reject) => {
+        req.session.save(err => {
+          if (err) {
+            console.error("Session save error:", err);
+            reject(err);
+          } else {
+            console.log(`User ${user.id} successfully logged in, session ID: ${req.session.id}`);
+            resolve();
+          }
+        });
+      });
+      
       res.status(200).json(userWithoutPassword);
     } catch (error) {
+      console.error("Login error:", error);
       res.status(500).json({ message: "Failed to login" });
     }
   });
 
   app.get('/api/auth/user', async (req, res) => {
     try {
+      console.log(`Checking auth status - Session ID: ${req.session.id}, User ID: ${req.session.userId || 'none'}`);
+      
       if (!req.session.userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
@@ -98,15 +131,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(req.session.userId);
       
       if (!user) {
-        req.session.destroy(() => {});
+        console.log(`User ID ${req.session.userId} not found in database`);
+        req.session.destroy(() => {
+          console.log('Session destroyed due to user not found');
+        });
         return res.status(401).json({ message: "User not found" });
       }
       
       // Don't return password
       const { password, ...userWithoutPassword } = user;
+      console.log(`User authenticated: ${user.username} (ID: ${user.id})`);
       
       res.status(200).json(userWithoutPassword);
     } catch (error) {
+      console.error("Error getting user:", error);
       res.status(500).json({ message: "Failed to get user" });
     }
   });
