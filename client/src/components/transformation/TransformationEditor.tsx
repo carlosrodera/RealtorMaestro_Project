@@ -16,6 +16,7 @@ import { StyleSelector } from '@/components/transformation/StyleSelector';
 import { Textarea } from '@/components/ui/textarea';
 import { TransformationData, ImageFile } from '@/types';
 import { useTransformations } from '@/hooks/use-transformations';
+import { useQuery } from '@tanstack/react-query';
 import { Check, Upload, Edit2, Brush, Image as ImageIcon, ArrowLeft, ArrowRight, RefreshCw, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
@@ -48,10 +49,14 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { createTransformation, useTransformation } = useTransformations(projectId);
+  const { createTransformation, updateTransformation } = useTransformations(projectId);
   const { toast } = useToast();
   
-  const { data: transformation } = useTransformation(transformationId || 0);
+  // Necesitamos usar el hook para la transformación actual
+  const { data: transformation } = useQuery({
+    queryKey: transformationId ? [`/api/transformations/${transformationId}`] : [],
+    enabled: !!transformationId,
+  });
   
   // Initialize canvas when editor opens
   useEffect(() => {
