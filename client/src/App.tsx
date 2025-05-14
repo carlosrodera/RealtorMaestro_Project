@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, RouteComponentProps } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -73,9 +73,9 @@ function Router() {
         </MainLayout>
       } />
       
-      <Route path="/projects/:id" component={({ id }) => 
+      <Route path="/projects/:id" component={(params: RouteComponentProps<{ id: string }>) => 
         <MainLayout>
-          <ProtectedRoute component={() => <ProjectDetails id={id} />} />
+          <ProtectedRoute component={() => <ProjectDetails id={params.params.id} />} />
         </MainLayout>
       } />
       
