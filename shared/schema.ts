@@ -67,6 +67,7 @@ export const insertTransformationSchema = createInsertSchema(transformations).pi
   customPrompt: true,
   annotations: true,
   name: true,
+  status: true,
 });
 
 // Descriptions table
@@ -98,6 +99,7 @@ export const insertDescriptionSchema = createInsertSchema(descriptions).pick({
   lengthOption: true,
   language: true,
   name: true,
+  status: true,
 });
 
 // Type definitions

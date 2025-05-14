@@ -155,13 +155,62 @@ class MemStorage implements IStorage {
     this.transformationIdCounter = 1;
     this.descriptionIdCounter = 1;
     
-    // Initialize with sample user for testing
+    // Initialize with demo user account
     this.createUser({
       username: "demo",
-      password: "password",
-      email: "demo@example.com",
-      fullName: "Demo User",
-      company: "Demo Realty"
+      password: "demo123",
+      email: "demo@realtor360.com",
+      fullName: "María García",
+      company: "InmoTech Realty"
+    }).then(user => {
+      // Create sample projects for the demo user
+      this.createProject({
+        userId: user.id,
+        name: "Ático en Malasaña",
+        description: "Ático de lujo con terraza en el centro de Madrid"
+      }).then(project => {
+        // Add sample transformation for the project
+        this.createTransformation({
+          userId: user.id,
+          projectId: project.id,
+          originalImagePath: "/sample/sample-apartment.jpg",
+          style: "modern",
+          name: "Salón principal - Estilo moderno",
+          customPrompt: "Moderniza el salón con estilo nórdico minimalista",
+          status: "completed",
+          transformedImagePath: "/sample/sample-apartment-transformed.jpg"
+        });
+        
+        // Add sample description for the project
+        this.createDescription({
+          userId: user.id,
+          projectId: project.id,
+          propertyData: {
+            propertyType: "apartment",
+            price: "450000",
+            area: "85",
+            bedrooms: "2",
+            bathrooms: "2",
+            zone: "Malasaña, Madrid",
+            yearBuilt: "1980",
+            features: {"renovated": true, "elevator": true, "terrace": true, "airConditioning": true},
+            notes: "Completamente reformado en 2022"
+          },
+          name: "Descripción principal - Ático Malasaña",
+          tone: "professional",
+          lengthOption: "medium",
+          language: "es",
+          status: "completed",
+          generatedText: "Descubra este exclusivo ático completamente reformado en el corazón de Malasaña, uno de los barrios más vibrantes y con más personalidad de Madrid. Con 85 m² distribuidos en 2 amplios dormitorios y 2 baños completos, esta propiedad combina a la perfección el encanto del Madrid tradicional con toques contemporáneos.\n\nEl salón principal, bañado de luz natural gracias a sus ventanales orientados al este, cuenta con suelos de madera natural y salida directa a una terraza privada de 15m². La cocina, totalmente equipada con electrodomésticos de alta gama, presenta un diseño minimalista con acabados en blanco y una práctica isla central.\n\nEl dormitorio principal es un verdadero remanso de paz con su vestidor integrado y baño en suite con ducha efecto lluvia. A escasos minutos a pie encontrará todos los servicios, incluyendo el Metro de Tribunal, innumerables comercios, restaurantes de moda y la emblemática Gran Vía."
+        });
+      });
+      
+      // Create another sample project
+      this.createProject({
+        userId: user.id,
+        name: "Villa en La Moraleja",
+        description: "Villa exclusiva con piscina y jardín en La Moraleja"
+      });
     });
   }
 

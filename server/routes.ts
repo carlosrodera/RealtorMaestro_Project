@@ -283,16 +283,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create transformation
       const transformation = await storage.createTransformation(transformationData);
       
-      // In a real implementation, we would send the transformation to the AI service
-      // For now, we simulate a successful transformation after a delay
+      // Mock n8n integration: In a real implementation, we would send a webhook to n8n
+      console.log(`[n8n-mock] Sending image transformation request to n8n workflow`);
+      console.log(`[n8n-mock] Original image: ${transformationData.originalImagePath}`);
+      console.log(`[n8n-mock] Style: ${transformationData.style}`);
+      console.log(`[n8n-mock] Custom prompt: ${transformationData.customPrompt || 'No custom prompt'}`);
+      
+      // Simulate the n8n processing delay and response
       setTimeout(async () => {
+        console.log(`[n8n-mock] Received transformed image from n8n workflow`);
+        
+        // Prepare a realistic transformed image path
+        let transformedImagePath = '/sample/transformed-image.jpg';
+        
+        // If we have a style, use a more specific sample image
+        if (transformationData.style === 'modern') {
+          transformedImagePath = '/sample/modern-transformation.jpg';
+        } else if (transformationData.style === 'luxury') {
+          transformedImagePath = '/sample/luxury-transformation.jpg';
+        } else if (transformationData.style === 'minimalist') {
+          transformedImagePath = '/sample/minimalist-transformation.jpg';
+        }
+        
         await storage.updateTransformation(transformation.id, {
           status: "completed",
-          transformedImagePath: "/sample/transformed-image.jpg",
-          processingTimeMs: 2500,
-          aiProviderUsed: "sample-ai-provider",
+          transformedImagePath: transformedImagePath,
+          processingTimeMs: Math.floor(Math.random() * 1000) + 2000, // Random time between 2-3 seconds
+          aiProviderUsed: "Stable Diffusion XL",
         });
-      }, 2500);
+      }, 3000);
       
       res.status(201).json(transformation);
     } catch (error) {
@@ -425,16 +444,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create description
       const description = await storage.createDescription(descriptionData);
       
-      // In a real implementation, we would send the description request to the AI service
-      // For now, we simulate a successful description generation after a delay
+      // Mock n8n integration for description generation
+      console.log(`[n8n-mock] Sending description generation request to n8n workflow`);
+      console.log(`[n8n-mock] Property type: ${descriptionData.propertyData.propertyType}`);
+      console.log(`[n8n-mock] Zone: ${descriptionData.propertyData.zone}`);
+      console.log(`[n8n-mock] Tone: ${descriptionData.tone}`);
+      console.log(`[n8n-mock] Length: ${descriptionData.lengthOption}`);
+      console.log(`[n8n-mock] Language: ${descriptionData.language}`);
+      
+      if (descriptionData.sourceImagePaths && descriptionData.sourceImagePaths.length > 0) {
+        console.log(`[n8n-mock] Images included: ${descriptionData.sourceImagePaths.length}`);
+      } else {
+        console.log(`[n8n-mock] No images included in the request`);
+      }
+      
+      // Generate a more relevant description based on the property data
       setTimeout(async () => {
+        console.log(`[n8n-mock] Received generated description from n8n workflow`);
+        
+        const propertyData = descriptionData.propertyData;
+        let generatedText = "";
+        const isProfessional = descriptionData.tone === 'professional';
+        const isSpanish = descriptionData.language === 'es';
+        const isLong = descriptionData.lengthOption === 'long';
+        
+        // Create a more tailored description based on property type and data
+        if (propertyData.propertyType === 'apartment') {
+          if (isSpanish) {
+            generatedText = `Descubra este exclusivo ${propertyData.features?.penthouse ? 'ático' : 'piso'} ${propertyData.features?.renovated ? 'completamente reformado' : ''} en ${propertyData.zone}, ${isProfessional ? 'una de las zonas más cotizadas de la ciudad' : 'un lugar perfecto para vivir'}. Con ${propertyData.area} m² distribuidos en ${propertyData.bedrooms} ${parseInt(propertyData.bedrooms || "0") > 1 ? 'amplios dormitorios' : 'dormitorio'} y ${propertyData.bathrooms} ${parseInt(propertyData.bathrooms || "0") > 1 ? 'baños completos' : 'baño completo'}, esta propiedad ${isProfessional ? 'combina a la perfección funcionalidad y diseño' : 'es acogedora y confortable'}.\n\n`;
+            
+            generatedText += `El salón principal ${propertyData.features?.bright ? 'está bañado de luz natural' : 'es acogedor'} ${propertyData.features?.terrace ? 'con salida directa a una amplia terraza' : ''}. La cocina ${propertyData.features?.renovated ? 'ha sido completamente renovada y' : ''} está totalmente equipada con electrodomésticos ${isProfessional ? 'de alta gama' : 'modernos'}.\n\n`;
+            
+            if (isLong) {
+              generatedText += `El dormitorio principal es espacioso y luminoso ${propertyData.features?.wardrobe ? 'con armarios empotrados' : ''}. ${propertyData.features?.parking ? 'La propiedad incluye plaza de garaje, un valor añadido en esta zona.' : ''} A escasos minutos a pie encontrará todos los servicios necesarios, incluyendo transporte público, comercios y restaurantes.`;
+            }
+          } else {
+            // English description
+            generatedText = `Discover this exclusive ${propertyData.features?.penthouse ? 'penthouse' : 'apartment'} ${propertyData.features?.renovated ? 'completely renovated' : ''} in ${propertyData.zone}, ${isProfessional ? 'one of the most sought-after areas in the city' : 'a perfect place to live'}. With ${propertyData.area} m² distributed in ${propertyData.bedrooms} ${parseInt(propertyData.bedrooms || "0") > 1 ? 'spacious bedrooms' : 'bedroom'} and ${propertyData.bathrooms} ${parseInt(propertyData.bathrooms || "0") > 1 ? 'complete bathrooms' : 'complete bathroom'}, this property ${isProfessional ? 'perfectly combines functionality and design' : 'is cozy and comfortable'}.\n\n`;
+            
+            generatedText += `The main living room ${propertyData.features?.bright ? 'is bathed in natural light' : 'is cozy'} ${propertyData.features?.terrace ? 'with direct access to a spacious terrace' : ''}. The kitchen ${propertyData.features?.renovated ? 'has been completely renovated and' : ''} is fully equipped with ${isProfessional ? 'high-end' : 'modern'} appliances.\n\n`;
+            
+            if (isLong) {
+              generatedText += `The main bedroom is spacious and bright ${propertyData.features?.wardrobe ? 'with built-in wardrobes' : ''}. ${propertyData.features?.parking ? 'The property includes a parking space, an added value in this area.' : ''} Within walking distance, you'll find all necessary services, including public transportation, shops, and restaurants.`;
+            }
+          }
+        } else if (propertyData.propertyType === 'house' || propertyData.propertyType === 'villa') {
+          if (isSpanish) {
+            generatedText = `Impresionante ${propertyData.propertyType === 'villa' ? 'villa' : 'casa'} ${propertyData.features?.renovated ? 'totalmente reformada' : ''} situada en ${propertyData.zone}. Esta magnífica propiedad de ${propertyData.area} m² cuenta con ${propertyData.bedrooms} ${parseInt(propertyData.bedrooms || "0") > 1 ? 'dormitorios' : 'dormitorio'} y ${propertyData.bathrooms} ${parseInt(propertyData.bathrooms || "0") > 1 ? 'baños' : 'baño'}, distribuidos en ${isProfessional ? 'un diseño que maximiza el espacio y la luminosidad' : 'un espacio acogedor para toda la familia'}.\n\n`;
+            
+            generatedText += `${propertyData.features?.garden ? 'Dispone de un espléndido jardín privado ideal para disfrutar del aire libre' : ''} ${propertyData.features?.pool ? 'y piscina propia para los meses de verano' : ''}. El interior destaca por sus amplios espacios, ${propertyData.features?.renovated ? 'acabados de alta calidad' : 'características tradicionales'} y abundante luz natural.\n\n`;
+            
+            if (isLong) {
+              generatedText += `La cocina ${propertyData.features?.renovated ? 'moderna' : ''} está equipada con todo lo necesario para ${isProfessional ? 'los más exigentes chefs' : 'el día a día'}. ${propertyData.features?.parking ? 'Cuenta con amplio garaje para varios vehículos.' : ''} Esta propiedad representa una oportunidad única para vivir en una de las zonas más exclusivas, combinando tranquilidad con proximidad a todos los servicios.`;
+            }
+          } else {
+            // English description
+            generatedText = `Impressive ${propertyData.propertyType === 'villa' ? 'villa' : 'house'} ${propertyData.features?.renovated ? 'completely renovated' : ''} located in ${propertyData.zone}. This magnificent property of ${propertyData.area} m² has ${propertyData.bedrooms} ${parseInt(propertyData.bedrooms || "0") > 1 ? 'bedrooms' : 'bedroom'} and ${propertyData.bathrooms} ${parseInt(propertyData.bathrooms || "0") > 1 ? 'bathrooms' : 'bathroom'}, distributed in ${isProfessional ? 'a design that maximizes space and brightness' : 'a cozy space for the whole family'}.\n\n`;
+            
+            generatedText += `${propertyData.features?.garden ? 'It has a splendid private garden ideal for enjoying the outdoors' : ''} ${propertyData.features?.pool ? 'and a private pool for the summer months' : ''}. The interior stands out for its ample spaces, ${propertyData.features?.renovated ? 'high-quality finishes' : 'traditional features'} and abundant natural light.\n\n`;
+            
+            if (isLong) {
+              generatedText += `The ${propertyData.features?.renovated ? 'modern' : ''} kitchen is equipped with everything necessary for ${isProfessional ? 'the most demanding chefs' : 'daily life'}. ${propertyData.features?.parking ? 'It has a spacious garage for several vehicles.' : ''} This property represents a unique opportunity to live in one of the most exclusive areas, combining tranquility with proximity to all services.`;
+            }
+          }
+        }
+        
         await storage.updateDescription(description.id, {
           status: "completed",
-          generatedText: "Descubra este exclusivo piso completamente reformado en el corazón de Malasaña, uno de los barrios más vibrantes y con más personalidad de Madrid. Con 85 m² distribuidos en 2 amplios dormitorios y 2 baños completos, esta propiedad combina a la perfección el encanto del Madrid tradicional con toques contemporáneos.\n\nEl salón principal, bañado de luz natural gracias a sus ventanales orientados al este, cuenta con suelos de madera natural y una moderna chimenea que añade un toque acogedor. La cocina, totalmente equipada con electrodomésticos de alta gama, presenta un diseño minimalista con acabados en blanco y una práctica isla central, perfecta para los amantes de la gastronomía.\n\nEl dormitorio principal es un verdadero remanso de paz con su vestidor integrado y baño en suite con ducha efecto lluvia. A escasos minutos a pie encontrará todos los servicios, incluyendo el Metro de Tribunal, innumerables comercios, restaurantes de moda y la emblemática Gran Vía.",
-          processingTimeMs: 1800,
-          aiProviderUsed: "sample-ai-provider",
+          generatedText: generatedText,
+          processingTimeMs: Math.floor(Math.random() * 2000) + 2000, // Random time between 2-4 seconds
+          aiProviderUsed: "GPT-4o",
         });
-      }, 1800);
+      }, 4000);
       
       res.status(201).json(description);
     } catch (error) {
