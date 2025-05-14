@@ -16,9 +16,10 @@ import { StyleSelector } from '@/components/transformation/StyleSelector';
 import { Textarea } from '@/components/ui/textarea';
 import { TransformationData, ImageFile } from '@/types';
 import { useTransformations } from '@/hooks/use-transformations';
-import { Check, Upload, Edit2, Brush, Image as ImageIcon, ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react';
+import { Check, Upload, Edit2, Brush, Image as ImageIcon, ArrowLeft, ArrowRight, RefreshCw, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
 
 type Step = 'upload' | 'edit' | 'style' | 'result';
 
@@ -542,7 +543,7 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent 
-        className="sm:max-w-4xl"
+        className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
         aria-describedby="transformation-description"
       >
         <DialogHeader>
@@ -559,14 +560,19 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
         
         {renderStepIndicator()}
         
-        <div className="bg-white rounded-lg p-6">
-          {currentStep === 'upload' && renderUploadStep()}
-          {currentStep === 'edit' && renderEditStep()}
-          {currentStep === 'style' && renderStyleStep()}
-          {currentStep === 'result' && renderResultStep()}
+        <div className="dialog-scrollable-content relative">
+          <ChevronDown className="scroll-indicator" />
+          
+          <div className="bg-white rounded-lg p-6">
+            {currentStep === 'upload' && renderUploadStep()}
+            {currentStep === 'edit' && renderEditStep()}
+            {currentStep === 'style' && renderStyleStep()}
+            {currentStep === 'result' && renderResultStep()}
+          </div>
         </div>
         
-        <DialogFooter className="mt-6 flex justify-between">
+        <div className="sticky-actions">
+          <DialogFooter className="flex justify-between">
           {currentStep !== 'upload' ? (
             <Button variant="outline" onClick={handlePreviousStep}>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -596,8 +602,8 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
           {currentStep === 'style' && (
             <LoadingButton 
               onClick={handleSubmitTransformation} 
-              isLoading={transformation?.status === 'pending' || transformation?.status === 'processing'}
-              disabled={transformation?.status === 'pending' || transformation?.status === 'processing'}
+              loading={isSubmitting}
+              disabled={isSubmitting}
             >
               Transformar Imagen
             </LoadingButton>
@@ -610,6 +616,7 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
             </Button>
           )}
         </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
