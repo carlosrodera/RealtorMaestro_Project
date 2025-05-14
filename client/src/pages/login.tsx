@@ -76,6 +76,13 @@ export default function Login() {
               </div>
             )}
             
+            <div className="mb-4 p-3 rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-sm">
+              <p className="font-medium mb-1">Cuenta de demostración disponible:</p>
+              <p><span className="font-medium">Usuario:</span> demo</p>
+              <p><span className="font-medium">Contraseña:</span> demo123</p>
+              <p className="mt-1 text-xs text-blue-600">Usa esta cuenta para explorar todas las funcionalidades de la plataforma.</p>
+            </div>
+            
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -106,13 +113,26 @@ export default function Login() {
                   )}
                 />
                 
-                <LoadingButton
-                  type="submit"
-                  className="w-full"
-                  isLoading={isSubmitting}
-                >
-                  Iniciar sesión
-                </LoadingButton>
+                <div className="flex gap-2">
+                  <LoadingButton
+                    type="submit"
+                    className="flex-1"
+                    isLoading={isSubmitting}
+                  >
+                    Iniciar sesión
+                  </LoadingButton>
+                  
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      form.setValue('username', 'demo');
+                      form.setValue('password', 'demo123');
+                    }}
+                  >
+                    Usar demo
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>
