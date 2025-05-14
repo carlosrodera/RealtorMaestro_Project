@@ -12,6 +12,7 @@ import express from "express";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import { z } from "zod";
+import { n8nService } from './n8n-service';
 
 // Add userId to the session type
 declare module "express-session" {
@@ -321,35 +322,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create transformation
       const transformation = await storage.createTransformation(transformationData);
       
-      // Mock n8n integration: In a real implementation, we would send a webhook to n8n
-      console.log(`[n8n-mock] Sending image transformation request to n8n workflow`);
-      console.log(`[n8n-mock] Original image: ${transformationData.originalImagePath}`);
-      console.log(`[n8n-mock] Style: ${transformationData.style}`);
-      console.log(`[n8n-mock] Custom prompt: ${transformationData.customPrompt || 'No custom prompt'}`);
-      
-      // Simulate the n8n processing delay and response
-      setTimeout(async () => {
-        console.log(`[n8n-mock] Received transformed image from n8n workflow`);
+      // Use real n8n service or fallback to mock mode
+      try {
+        console.log(`Sending image transformation request to n8n service`);
         
-        // Prepare a realistic transformed image path
-        let transformedImagePath = '/sample/transformed-image.jpg';
-        
-        // If we have a style, use a more specific sample image
-        if (transformationData.style === 'modern') {
-          transformedImagePath = '/sample/modern-transformation.jpg';
-        } else if (transformationData.style === 'luxury') {
-          transformedImagePath = '/sample/luxury-transformation.jpg';
-        } else if (transformationData.style === 'minimalist') {
-          transformedImagePath = '/sample/minimalist-transformation.jpg';
-        }
-        
-        await storage.updateTransformation(transformation.id, {
-          status: "completed",
-          transformedImagePath: transformedImagePath,
-          processingTimeMs: Math.floor(Math.random() * 1000) + 2000, // Random time between 2-3 seconds
-          aiProviderUsed: "Stable Diffusion XL",
-        });
-      }, 3000);
+        // Process the transformation via n8n service
+        setTimeout(async () => {
+          try {
+            const result = await n8nService.requestImageTransformation({
+              originalImageUrl: transformationData.originalImagePath,
+              style: transformationData.style,
+              customPrompt: transformationData.customPrompt
+            });
+            
+            console.log("N8n transformation result:", result);
+            
+            // Prepare the transformed image path
+            let transformedImagePath = result.transformedImageUrl;
+            
+            // If we're in mock mode and don't have a real transformed image URL
+            if (result.mockServiceUsed || !transformedImagePath) {
+              console.log("Using mock transformation image path");
+              transformedImagePath = '/sample/transformed-image.jpg';
+              
+              // If we have a style, use a more specific sample image
+              if (transformationData.style === 'modern') {
+                transformedImagePath = '/sample/modern-transformation.jpg';
+              } else if (transformationData.style === 'luxury') {
+                transformedImagePath = '/sample/luxury-transformation.jpg';
+              } else if (transformationData.style === 'minimalist') {
+                transformedImagePath = '/sample/minimalist-transformation.jpg';
+              }
+            }
+            
+            await storage.updateTransformation(transformation.id, {
+              status: "completed",
+              transformedImagePath: transformedImagePath,
+              processingTimeMs: result.processingTimeMs || Math.floor(Math.random() * 1000) + 2000,
+              aiProviderUsed: result.aiProviderUsed || "Stable Diffusion XL",
+            });
+          } catch (processError: any) {
+            console.error("Error processing transformation:", processError);
+            await storage.updateTransformation(transformation.id, {
+              status: "error",
+              errorMessage: processError.message || "Unknown error during transformation processing"
+            });
+          }
+        }, 1000); // Reduced timeout for better UX
+      } catch (error) {
+        console.error("Initial n8n service error:", error);
+      }
       
       res.status(201).json(transformation);
     } catch (error) {

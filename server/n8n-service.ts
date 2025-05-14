@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 interface N8nTransformationRequestData {
   originalImageUrl: string;
   style: string;
-  customPrompt?: string;
+  customPrompt?: string | null;
 }
 
 interface N8nDescriptionRequestData {
@@ -23,8 +23,8 @@ export class N8nService {
   private isConfigured: boolean = false;
 
   constructor() {
-    this.transformationWebhookUrl = process.env.N8N_TRANSFORMATION_WEBHOOK;
-    this.descriptionWebhookUrl = process.env.N8N_DESCRIPTION_WEBHOOK;
+    this.transformationWebhookUrl = process.env.N8N_TRANSFORMATION_WEBHOOK || null;
+    this.descriptionWebhookUrl = process.env.N8N_DESCRIPTION_WEBHOOK || null;
     this.isConfigured = !!(this.transformationWebhookUrl || this.descriptionWebhookUrl);
     
     if (!this.isConfigured) {
