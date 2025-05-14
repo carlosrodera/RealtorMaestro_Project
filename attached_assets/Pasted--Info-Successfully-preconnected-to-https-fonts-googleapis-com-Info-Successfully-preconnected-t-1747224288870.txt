@@ -1,0 +1,69 @@
+[Info] Successfully preconnected to https://fonts.googleapis.com/
+[Info] Successfully preconnected to https://fonts.gstatic.com/
+[Debug] [vite] connecting... (client, line 495)
+[Debug] [vite] connected. (client, line 618)
+[Log] Checking authentication status... (AuthContext.tsx, line 89)
+[Log] Checking authentication status... (AuthContext.tsx, line 89)
+[Log] User authenticated: – Object (AuthContext.tsx, line 95)
+Object
+[Log] User authenticated: – Object (AuthContext.tsx, line 95)
+Object
+[Error] Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+a
+a
+@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:337:27
+nav
+div
+aside
+Sidebar@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/src/components/layout/Sidebar.tsx:27:5
+div
+div
+MainLayout@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/src/components/layout/MainLayout.tsx:23:5
+component
+Route@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:323:14
+Switch@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js:380:27
+Router
+TooltipProviderProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-VJRUVGTI.js:38:13
+TooltipProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js:62:43
+AuthProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/src/contexts/AuthContext.tsx:84:5
+QueryClientProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js:2805:9
+App
+AuthProvider@https://de17960a-db02-4251-b861-b477b2940e17-00-173a0m35aqarp.riker.replit.dev/src/contexts/AuthContext.tsx:84:5
+	printWarning (chunk-WERSD76P.js:521)
+	error (chunk-WERSD76P.js:505)
+	validateDOMNesting (chunk-WERSD76P.js:8256)
+	createInstance (chunk-WERSD76P.js:8328)
+	completeWork (chunk-WERSD76P.js:16290)
+	completeUnitOfWork (chunk-WERSD76P.js:19224)
+	performUnitOfWork (chunk-WERSD76P.js:19206)
+	workLoopSync (chunk-WERSD76P.js:19137)
+	renderRootSync (chunk-WERSD76P.js:19116)
+	performConcurrentWorkOnRoot (chunk-WERSD76P.js:18678:98)
+	workLoop (chunk-WERSD76P.js:197)
+	flushWork (chunk-WERSD76P.js:176)
+	performWorkUntilDeadline (chunk-WERSD76P.js:384)
+[Warning] Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}. (chunk-CNOJFLXF.js, line 337, x2)
+[Log] Initializing canvas... (TransformationEditor.tsx, line 60)
+[Log] Adding image to canvas... (TransformationEditor.tsx, line 73)
+[Error] Failed to load resource: the server responded with a status of 413 (Request Entity Too Large) (transformations, line 0)
+[Error] Error creating transformation: – Error: 413: {"message":"request entity too large"}
+Error: 413: {"message":"request entity too large"}
+	(función anónima) (TransformationEditor.tsx:209)
+[Error] Failed to load resource: the server responded with a status of 413 (Request Entity Too Large) (transformations, line 0)
+[Error] Error creating transformation: – Error: 413: {"message":"request entity too large"}
+Error: 413: {"message":"request entity too large"}
+	(función anónima) (TransformationEditor.tsx:209)
+[Error] Failed to load resource: the server responded with a status of 413 (Request Entity Too Large) (transformations, line 0)
+[Error] Error creating transformation: – Error: 413: {"message":"request entity too large"}
+Error: 413: {"message":"request entity too large"}
+	(función anónima) (TransformationEditor.tsx:209)
+[Error] Failed to load resource: the server responded with a status of 413 (Request Entity Too Large) (transformations, line 0)
+[Error] Error creating transformation: – Error: 413: {"message":"request entity too large"}
+Error: 413: {"message":"request entity too large"}
+	(función anónima) (TransformationEditor.tsx:209)
+[Error] Failed to load resource: the server responded with a status of 413 (Request Entity Too Large) (transformations, line 0)
+[Error] Error creating transformation: – Error: 413: {"message":"request entity too large"}
+Error: 413: {"message":"request entity too large"}
+	(función anónima) (TransformationEditor.tsx:209)
+> Elemento seleccionado
+< <main data-replit-metadata="client/src/components/layout/MainLayout.tsx:29:8" data-component-name="main" class="flex-1 overflow-y-auto scrollbar-hide">…</main>

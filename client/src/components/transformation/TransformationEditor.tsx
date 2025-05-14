@@ -73,19 +73,19 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
         // Add the selected image to canvas
         if (selectedImage) {
           console.log('Adding image to canvas...');
-          fabric.Image.fromURL(selectedImage.preview, (img) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.src = selectedImage.preview;
+          img.onload = () => {
             try {
-              if (!img) {
-                console.error('Failed to load image');
-                return;
-              }
+              const imgInstance = new fabric.Image(img);
               
               // Scale image to fit canvas while maintaining aspect ratio
               const canvasWidth = fabricCanvas.getWidth();
               const canvasHeight = fabricCanvas.getHeight();
               
-              const imgWidth = img.width || 0;
-              const imgHeight = img.height || 0;
+              const imgWidth = imgInstance.width || 0;
+              const imgHeight = imgInstance.height || 0;
               
               if (imgWidth === 0 || imgHeight === 0) {
                 console.error('Image has invalid dimensions');
@@ -93,25 +93,32 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
               }
               
               const scaleFactor = Math.min(
-                canvasWidth / imgWidth,
-                canvasHeight / imgHeight
-              );
+                (canvasWidth - 20) / imgWidth,
+                (canvasHeight - 20) / imgHeight
+              ) * 0.9; // Añadir un pequeño margen
               
-              img.scale(scaleFactor);
+              imgInstance.scale(scaleFactor);
               
               // Center the image on canvas
-              img.set({
+              imgInstance.set({
                 left: (canvasWidth - imgWidth * scaleFactor) / 2,
                 top: (canvasHeight - imgHeight * scaleFactor) / 2,
                 selectable: false,
+                objectCaching: false
               });
               
-              fabricCanvas.add(img);
+              // Asegurarse de que el canvas esté limpio antes de agregar la imagen
+              fabricCanvas.clear();
+              fabricCanvas.add(imgInstance);
               fabricCanvas.renderAll();
+              fabricCanvas.setBackgroundColor('#f8fafc', fabricCanvas.renderAll.bind(fabricCanvas));
             } catch (error) {
               console.error('Error adding image to canvas:', error);
             }
-          });
+          };
+          img.onerror = () => {
+            console.error('Failed to load image');
+          };
         }
       } catch (error) {
         console.error('Error initializing canvas:', error);
@@ -421,8 +428,18 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
         
         {canvas && <EditorTools canvas={canvas} />}
         
-        <div ref={canvasContainerRef} className="fabric-canvas-container mb-6">
+        <div ref={canvasContainerRef} className="fabric-canvas-container relative">
           <canvas ref={canvasRef} />
+          {canvas && (
+            <div className="absolute top-2 right-2 z-10 bg-white/80 backdrop-blur-sm rounded-md p-1 shadow-sm">
+              <p className="text-xs text-gray-600 mb-1">Tamaño del lienzo</p>
+              <div className="flex gap-1">
+                <Badge variant="outline" className="text-xs">
+                  {canvas.width} × {canvas.height}
+                </Badge>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="border border-gray-200 rounded-md p-4 mb-6">
