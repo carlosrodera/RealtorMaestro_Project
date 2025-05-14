@@ -71,17 +71,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log("Checking authentication status...");
         const res = await fetch('/api/auth/user', {
           credentials: 'include',
         });
         
         if (res.ok) {
           const user = await res.json();
+          console.log("User authenticated:", user);
           dispatch({ type: "LOGIN_SUCCESS", payload: user });
         } else {
+          console.log("Authentication failed:", await res.text());
           dispatch({ type: "LOGOUT_SUCCESS" });
         }
       } catch (error) {
+        console.error("Authentication check error:", error);
         dispatch({ type: "LOGOUT_SUCCESS" });
       }
     };
@@ -93,15 +97,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (username: string, password: string) => {
     dispatch({ type: "LOGIN_START" });
     try {
+      console.log("Attempting login with credentials:", { username });
       const res = await apiRequest("POST", "/api/auth/login", { username, password });
       const user = await res.json();
+      console.log("Login successful:", user);
       dispatch({ type: "LOGIN_SUCCESS", payload: user });
     } catch (error) {
       let errorMessage = "Error al iniciar sesión";
       if (error instanceof Error) {
         errorMessage = error.message;
+        console.error("Login error:", errorMessage);
       }
       dispatch({ type: "LOGIN_FAILURE", payload: errorMessage });
+      throw error; // Rethrow to let the hook handle it
     }
   };
 
