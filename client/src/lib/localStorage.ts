@@ -295,6 +295,28 @@ export const descriptionsStorage = {
   }
 };
 
+// Utility function to clean up localStorage if needed
+export const cleanupStorage = () => {
+  try {
+    // Get all transformations and remove old ones
+    const transformations = transformationsStorage.getAll();
+    if (transformations.length > 5) {
+      // Keep only the 5 most recent
+      const recentTransformations = transformations.slice(-5);
+      localStorage.setItem(STORAGE_KEYS.TRANSFORMATIONS, JSON.stringify(recentTransformations));
+    }
+    
+    // Clean up descriptions
+    const descriptions = descriptionsStorage.getAll();
+    if (descriptions.length > 5) {
+      const recentDescriptions = descriptions.slice(-5);
+      localStorage.setItem(STORAGE_KEYS.DESCRIPTIONS, JSON.stringify(recentDescriptions));
+    }
+  } catch (error) {
+    console.error('Error cleaning up storage:', error);
+  }
+};
+
 // Credits management
 export const creditsStorage = {
   get: (): number => {

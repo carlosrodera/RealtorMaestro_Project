@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { transformationsStorage, StoredTransformation, creditsStorage } from "@/lib/localStorage";
+import { transformationsStorage, StoredTransformation, creditsStorage, cleanupStorage } from "@/lib/localStorage";
 import { getWebhookHandler, prepareImageForN8n } from "@/lib/webhookReceiver";
 import { TransformationData } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -57,10 +57,14 @@ export function useTransformations(projectId?: string) {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 300));
       
+      // Clean up old data to avoid quota issues
+      cleanupStorage();
+      
       // Create transformation with pending status
+      // Don't store the full base64 image to avoid LocalStorage quota issues
       const transformation = transformationsStorage.create({
         projectId: transformationData.projectId,
-        originalImage: transformationData.originalImagePath,
+        originalImage: 'processing', // Placeholder instead of full image
         style: transformationData.style,
         customPrompt: transformationData.customPrompt,
         annotations: transformationData.annotations,
