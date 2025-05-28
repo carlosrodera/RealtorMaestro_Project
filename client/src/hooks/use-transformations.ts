@@ -1,25 +1,47 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Transformation } from "@shared/schema";
+import { transformationsStorage, StoredTransformation, creditsStorage } from "@/lib/localStorage";
+import { getWebhookHandler, prepareImageForN8n } from "@/lib/webhookReceiver";
 import { TransformationData } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
-export function useTransformations(projectId?: number) {
+// Global transformation checker
+declare global {
+  interface Window {
+    _transformationCheckerInitialized?: boolean;
+  }
+}
+
+export function useTransformations(projectId?: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Fetch all transformations by user or project
-  const { data: transformations, isLoading, error } = useQuery({
-    queryKey: projectId 
-      ? [`/api/projects/${projectId}/transformations`] 
-      : ["/api/transformations"],
-    enabled: projectId ? !!projectId : true,
+  // Fetch all transformations
+  const { data: transformations = [], isLoading, error } = useQuery({
+    queryKey: projectId ? ["transformations", projectId] : ["transformations"],
+    queryFn: async () => {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      if (projectId) {
+        return transformationsStorage.getByProjectId(projectId);
+      }
+      return transformationsStorage.getAll();
+    },
   });
 
   // Fetch a single transformation
-  const useTransformation = (id: number) => {
+  const useTransformation = (id: string) => {
     return useQuery({
-      queryKey: [`/api/transformations/${id}`],
+      queryKey: ["transformations", id],
+      queryFn: async () => {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const transformation = transformationsStorage.get(id);
+        if (!transformation) {
+          throw new Error("Transformación no encontrada");
+        }
+        return transformation;
+      },
       enabled: !!id,
     });
   };
@@ -27,53 +49,86 @@ export function useTransformations(projectId?: number) {
   // Create a new transformation
   const createTransformation = useMutation({
     mutationFn: async (transformationData: TransformationData) => {
-      const res = await apiRequest("POST", "/api/transformations", transformationData);
-      return res.json();
-    },
-    onSuccess: (data) => {
-      if (projectId) {
-        queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/transformations`] });
+      // Check credits
+      if (!creditsStorage.use(1)) {
+        throw new Error("No tienes créditos suficientes");
       }
-      queryClient.invalidateQueries({ queryKey: ["/api/transformations"] });
-      toast({
-        title: "Transformación iniciada",
-        description: "La imagen se está procesando",
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Create transformation with pending status
+      const transformation = transformationsStorage.create({
+        projectId: transformationData.projectId,
+        originalImage: transformationData.originalImagePath,
+        style: transformationData.style,
+        customPrompt: transformationData.customPrompt,
+        annotations: transformationData.annotations,
+        status: 'pending'
       });
       
-      // We need to poll for updates until the transformation is complete
-      const pollInterval = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/transformations/${data.id}`, {
-            credentials: 'include',
-          });
-          const updatedTransformation = await res.json();
-          
-          if (updatedTransformation.status === "completed") {
-            clearInterval(pollInterval);
-            queryClient.invalidateQueries({ queryKey: [`/api/transformations/${data.id}`] });
-            if (projectId) {
-              queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/transformations`] });
-            }
-            queryClient.invalidateQueries({ queryKey: ["/api/transformations"] });
-            toast({
-              title: "Transformación completada",
-              description: "La imagen ha sido transformada exitosamente",
-            });
-          } else if (updatedTransformation.status === "failed") {
-            clearInterval(pollInterval);
-            toast({
-              title: "Error en la transformación",
-              description: updatedTransformation.errorMessage || "Ha ocurrido un error durante la transformación",
-              variant: "destructive",
-            });
-          }
-        } catch (error) {
-          clearInterval(pollInterval);
+      // Send to n8n webhook
+      try {
+        // Prepare image for n8n (convert to JPEG if needed)
+        const { base64, mimeType } = await prepareImageForN8n(transformationData.originalImagePath);
+        
+        const response = await fetch('https://agenteia.top/webhook-test/transform-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            transformationId: transformation.id,
+            image: base64,
+            mimeType: mimeType,
+            style: transformationData.style,
+            prompt: transformationData.customPrompt,
+            annotations: transformationData.annotations,
+            callbackUrl: `${window.location.origin}/webhook-callback`
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Error al enviar imagen a n8n');
         }
-      }, 2000);
+        
+        // Update status to processing
+        transformationsStorage.update(transformation.id, { status: 'processing' });
+        
+        // Register webhook handler
+        const webhookHandler = getWebhookHandler();
+        webhookHandler.onComplete('transformation', transformation.id, (data) => {
+          queryClient.invalidateQueries({ queryKey: ["transformations"] });
+          if (projectId) {
+            queryClient.invalidateQueries({ queryKey: ["transformations", projectId] });
+          }
+        });
+        
+      } catch (error) {
+        // Revert credit if failed
+        creditsStorage.add(1);
+        transformationsStorage.update(transformation.id, { 
+          status: 'failed',
+          errorMessage: error instanceof Error ? error.message : 'Error desconocido'
+        });
+        throw error;
+      }
       
-      // Clear interval after 5 minutes just in case
-      setTimeout(() => clearInterval(pollInterval), 5 * 60 * 1000);
+      return transformation;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["transformations"] });
+      if (projectId) {
+        queryClient.invalidateQueries({ queryKey: ["transformations", projectId] });
+      }
+      
+      toast({
+        title: "Transformación iniciada",
+        description: "La imagen se está procesando. Recibirás una notificación cuando esté lista.",
+      });
+      
+      // Start background checker
+      startBackgroundChecker(data.id);
     },
     onError: (error) => {
       toast({
@@ -86,40 +141,39 @@ export function useTransformations(projectId?: number) {
 
   // Update a transformation
   const updateTransformation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<Transformation> }) => {
-      const res = await apiRequest("PUT", `/api/transformations/${id}`, data);
-      return res.json();
+    mutationFn: async ({ id, data }: { id: string; data: Partial<StoredTransformation> }) => {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const updated = transformationsStorage.update(id, data);
+      if (!updated) {
+        throw new Error("Transformación no encontrada");
+      }
+      return updated;
     },
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["transformations"] });
+      queryClient.invalidateQueries({ queryKey: ["transformations", variables.id] });
       if (projectId) {
-        queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/transformations`] });
+        queryClient.invalidateQueries({ queryKey: ["transformations", projectId] });
       }
-      queryClient.invalidateQueries({ queryKey: ["/api/transformations"] });
-      queryClient.invalidateQueries({ queryKey: [`/api/transformations/${variables.id}`] });
-      toast({
-        title: "Transformación actualizada",
-        description: "La transformación ha sido actualizada exitosamente",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error al actualizar transformación",
-        description: error instanceof Error ? error.message : "Ha ocurrido un error",
-        variant: "destructive",
-      });
     },
   });
 
   // Delete a transformation
   const deleteTransformation = useMutation({
-    mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/transformations/${id}`);
+    mutationFn: async (id: string) => {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const success = transformationsStorage.delete(id);
+      if (!success) {
+        throw new Error("Transformación no encontrada");
+      }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transformations"] });
       if (projectId) {
-        queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/transformations`] });
+        queryClient.invalidateQueries({ queryKey: ["transformations", projectId] });
       }
-      queryClient.invalidateQueries({ queryKey: ["/api/transformations"] });
       toast({
         title: "Transformación eliminada",
         description: "La transformación ha sido eliminada exitosamente",
@@ -133,6 +187,53 @@ export function useTransformations(projectId?: number) {
       });
     },
   });
+
+  // Background checker for pending transformations
+  const startBackgroundChecker = (transformationId: string) => {
+    if (!window._transformationCheckerInitialized) {
+      window._transformationCheckerInitialized = true;
+      
+      // Request notification permission
+      if ('Notification' in window && Notification.permission !== 'granted') {
+        Notification.requestPermission();
+      }
+      
+      // Check every 10 seconds
+      setInterval(() => {
+        const allTransformations = transformationsStorage.getAll();
+        const pendingTransformations = allTransformations.filter(t => 
+          t.status === 'pending' || t.status === 'processing'
+        );
+        
+        pendingTransformations.forEach(transformation => {
+          // Check if transformation has been processing for too long (5 minutes)
+          const createdAt = new Date(transformation.createdAt).getTime();
+          const now = Date.now();
+          const elapsedMinutes = (now - createdAt) / 1000 / 60;
+          
+          if (elapsedMinutes > 5) {
+            transformationsStorage.update(transformation.id, {
+              status: 'failed',
+              errorMessage: 'Tiempo de espera excedido (5 minutos)'
+            });
+            
+            // Show notification
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification('Error en transformación', {
+                body: 'La transformación ha excedido el tiempo máximo de espera.',
+                icon: '/favicon.ico'
+              });
+            }
+          }
+        });
+        
+        // Invalidate queries to refresh UI
+        if (pendingTransformations.length > 0) {
+          queryClient.invalidateQueries({ queryKey: ["transformations"] });
+        }
+      }, 10000);
+    }
+  };
 
   return {
     transformations,

@@ -137,10 +137,10 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                 Perfil y Cuenta
               </a>
             </Link>
-            <Link href="/subscription">
+            <Link href="/pricing">
               <a className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                 <i className="ri-bank-card-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                Suscripción
+                Planes y Créditos
               </a>
             </Link>
             <Link href="/support">

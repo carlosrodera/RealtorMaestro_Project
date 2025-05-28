@@ -29,7 +29,7 @@ interface ProjectDetailsProps {
 }
 
 export default function ProjectDetails({ id }: ProjectDetailsProps) {
-  const projectId = parseInt(id);
+  const projectId = id; // Now using string IDs
   const [showTransformEditor, setShowTransformEditor] = useState(false);
   const [showDescriptionGenerator, setShowDescriptionGenerator] = useState(false);
   

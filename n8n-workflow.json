@@ -1,0 +1,163 @@
+{
+  "name": "Realtor360 Image Transformation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "transform-image",
+        "responseMode": "onReceived",
+        "responseData": "{ \"status\": \"processing\", \"message\": \"Image transformation started\" }",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract image data\nconst imageData = $json.image;\nconst style = $json.style;\nconst prompt = $json.prompt;\nconst transformationId = $json.transformationId;\nconst callbackUrl = $json.callbackUrl;\n\n// Prepare for image processing\nreturn {\n  imageData,\n  style,\n  prompt,\n  transformationId,\n  callbackUrl\n};"
+      },
+      "name": "Prepare Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "dataPropertyName": "imageData",
+        "encoding": "base64",
+        "format": "jpg"
+      },
+      "name": "Convert to Binary",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.stability.ai/v1/generation/stable-diffusion-v1-5/image-to-image",
+        "authentication": "headerAuth",
+        "headerAuth": {
+          "name": "Authorization",
+          "value": "Bearer YOUR_STABILITY_API_KEY"
+        },
+        "requestMethod": "POST",
+        "bodyContentType": "multipart-form-data",
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "init_image",
+              "value": "={{$binary.data}}"
+            },
+            {
+              "name": "text_prompts[0][text]",
+              "value": "={{$json.prompt + ' in ' + $json.style + ' style'}}"
+            },
+            {
+              "name": "cfg_scale",
+              "value": "7"
+            },
+            {
+              "name": "samples",
+              "value": "1"
+            },
+            {
+              "name": "steps",
+              "value": "30"
+            }
+          ]
+        }
+      },
+      "name": "AI Transformation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "name": "={{$json.transformationId}}_transformed.jpg",
+        "parents": ["YOUR_GOOGLE_DRIVE_FOLDER_ID"],
+        "resolveData": true,
+        "binaryPropertyName": "data"
+      },
+      "name": "Upload to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$node['Prepare Data'].json.callbackUrl}}",
+        "requestMethod": "POST",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "{\n  \"transformationId\": \"{{$node['Prepare Data'].json.transformationId}}\",\n  \"imageUrl\": \"{{$json.webViewLink}}\",\n  \"status\": \"completed\"\n}"
+      },
+      "name": "Send Callback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Convert to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Binary": {
+      "main": [
+        [
+          {
+            "node": "AI Transformation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Transformation": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Send Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

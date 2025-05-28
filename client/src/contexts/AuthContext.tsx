@@ -1,7 +1,6 @@
 import React, { createContext, useReducer, useEffect } from "react";
 import { AuthState, AuthContextType, RegisterData } from "@/types";
-import { apiRequest } from "@/lib/queryClient";
-import { User } from "@shared/schema";
+import { userStorage, initializeDemoData } from "@/lib/localStorage";
 
 // Create context
 export const AuthContext = createContext<AuthContextType>({
@@ -17,9 +16,10 @@ export const AuthContext = createContext<AuthContextType>({
 // Define action types
 type AuthAction =
   | { type: "LOGIN_START" | "REGISTER_START" | "LOGOUT_START" | "CLEAR_ERROR" }
-  | { type: "LOGIN_SUCCESS" | "REGISTER_SUCCESS"; payload: User }
+  | { type: "LOGIN_SUCCESS" | "REGISTER_SUCCESS"; payload: any }
   | { type: "LOGIN_FAILURE" | "REGISTER_FAILURE" | "LOGOUT_FAILURE"; payload: string }
-  | { type: "LOGOUT_SUCCESS" };
+  | { type: "LOGOUT_SUCCESS" }
+  | { type: "INIT_COMPLETE" };
 
 // Reducer function
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -60,6 +60,11 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         ...state,
         error: null,
       };
+    case "INIT_COMPLETE":
+      return {
+        ...state,
+        isLoading: false,
+      };
     default:
       return state;
   }
@@ -80,37 +85,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkAuth = async () => {
       try {
         console.log("Checking authentication status...");
-        const res = await fetch('/api/auth/user', {
-          credentials: 'include',
-        });
         
-        if (res.ok) {
-          const user = await res.json();
-          console.log("User authenticated:", user);
+        // Initialize demo data if needed
+        initializeDemoData();
+        
+        // Check if user is logged in
+        const user = userStorage.get();
+        const isLoggedIn = userStorage.isLoggedIn();
+        
+        if (user && isLoggedIn) {
+          console.log("User authenticated from localStorage:", user);
           dispatch({ type: "LOGIN_SUCCESS", payload: user });
         } else {
-          const errorText = await res.text();
-          console.log("Authentication failed:", errorText);
-          dispatch({ type: "LOGOUT_SUCCESS" });
+          console.log("No authenticated user found");
+          dispatch({ type: "INIT_COMPLETE" });
         }
       } catch (error) {
         console.error("Authentication check error:", error);
-        dispatch({ type: "LOGOUT_SUCCESS" });
+        dispatch({ type: "INIT_COMPLETE" });
       }
     };
 
     checkAuth();
   }, []);
 
-  // Login function
+  // Login function (no backend, just localStorage)
   const login = async (username: string, password: string) => {
     dispatch({ type: "LOGIN_START" });
     try {
-      console.log("Attempting login with credentials:", { username });
-      const res = await apiRequest("POST", "/api/auth/login", { username, password });
-      const user = await res.json();
-      console.log("Login successful:", user);
-      dispatch({ type: "LOGIN_SUCCESS", payload: user });
+      console.log("Attempting login with username:", username);
+      
+      // Simulate authentication delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Simple demo authentication
+      if (username === "demo" && password === "demo123") {
+        const user = userStorage.login(username);
+        console.log("Login successful:", user);
+        dispatch({ type: "LOGIN_SUCCESS", payload: user });
+      } else {
+        throw new Error("Credenciales incorrectas");
+      }
     } catch (error) {
       let errorMessage = "Error al iniciar sesión";
       if (error instanceof Error) {
@@ -118,17 +133,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Login error:", errorMessage);
       }
       dispatch({ type: "LOGIN_FAILURE", payload: errorMessage });
-      throw error; // Rethrow to let the hook handle it
+      throw error;
     }
   };
 
-  // Register function
+  // Register function (simplified for demo)
   const register = async (userData: RegisterData) => {
     dispatch({ type: "REGISTER_START" });
     try {
       console.log("Attempting registration with username:", userData.username);
-      const res = await apiRequest("POST", "/api/auth/register", userData);
-      const user = await res.json();
+      
+      // Simulate registration delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Check if username already exists (in this demo, only 'demo' is taken)
+      if (userData.username.toLowerCase() === 'demo') {
+        throw new Error("Este usuario ya existe");
+      }
+      
+      // Create new user
+      const user = userStorage.login(userData.username);
       console.log("Registration successful:", user);
       dispatch({ type: "REGISTER_SUCCESS", payload: user });
     } catch (error) {
@@ -138,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Registration error:", errorMessage);
       }
       dispatch({ type: "REGISTER_FAILURE", payload: errorMessage });
-      throw error; // Rethrow to let the hook handle it
+      throw error;
     }
   };
 
@@ -147,7 +171,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     dispatch({ type: "LOGOUT_START" });
     try {
       console.log("Attempting to logout");
-      await apiRequest("POST", "/api/auth/logout", {});
+      
+      // Clear localStorage
+      userStorage.clear();
+      
       console.log("Logout successful");
       dispatch({ type: "LOGOUT_SUCCESS" });
     } catch (error) {
@@ -157,7 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Logout error:", errorMessage);
       }
       dispatch({ type: "LOGOUT_FAILURE", payload: errorMessage });
-      throw error; // Rethrow to let the hook handle it
+      throw error;
     }
   };
 

@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Project } from "@shared/schema";
+import { projectsStorage, StoredProject } from "@/lib/localStorage";
 import { ProjectData } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
@@ -8,16 +7,30 @@ export function useProjects() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Fetch all projects
-  const { data: projects, isLoading, error } = useQuery({
-    queryKey: ["/api/projects"],
+  // Fetch all projects from localStorage
+  const { data: projects = [], isLoading, error } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return projectsStorage.getAll();
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   // Fetch a single project
-  const useProject = (id: number) => {
+  const useProject = (id: string) => {
     return useQuery({
-      queryKey: [`/api/projects/${id}`],
+      queryKey: ["projects", id],
+      queryFn: async () => {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const project = projectsStorage.get(id);
+        if (!project) {
+          throw new Error("Proyecto no encontrado");
+        }
+        return project;
+      },
       enabled: !!id,
     });
   };
@@ -25,11 +38,12 @@ export function useProjects() {
   // Create a new project
   const createProject = useMutation({
     mutationFn: async (projectData: ProjectData) => {
-      const res = await apiRequest("POST", "/api/projects", projectData);
-      return res.json();
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return projectsStorage.create(projectData.name, projectData.description);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast({
         title: "Proyecto creado",
         description: "El proyecto ha sido creado exitosamente",
@@ -46,13 +60,18 @@ export function useProjects() {
 
   // Update a project
   const updateProject = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<Project> }) => {
-      const res = await apiRequest("PUT", `/api/projects/${id}`, data);
-      return res.json();
+    mutationFn: async ({ id, data }: { id: string; data: Partial<StoredProject> }) => {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const updated = projectsStorage.update(id, data);
+      if (!updated) {
+        throw new Error("Proyecto no encontrado");
+      }
+      return updated;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
-      queryClient.invalidateQueries({ queryKey: [`/api/projects/${variables.id}`] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", variables.id] });
       toast({
         title: "Proyecto actualizado",
         description: "El proyecto ha sido actualizado exitosamente",
@@ -69,11 +88,16 @@ export function useProjects() {
 
   // Delete a project
   const deleteProject = useMutation({
-    mutationFn: async (id: number) => {
-      await apiRequest("DELETE", `/api/projects/${id}`);
+    mutationFn: async (id: string) => {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const success = projectsStorage.delete(id);
+      if (!success) {
+        throw new Error("Proyecto no encontrado");
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast({
         title: "Proyecto eliminado",
         description: "El proyecto ha sido eliminado exitosamente",

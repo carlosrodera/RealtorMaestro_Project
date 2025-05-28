@@ -11,6 +11,9 @@ import Projects from "@/pages/projects";
 import ProjectDetails from "@/pages/projects/[id]";
 import Transformations from "@/pages/transformations";
 import Descriptions from "@/pages/descriptions";
+import WebhookCallback from "@/pages/webhook-callback";
+import Landing from "@/pages/landing";
+import Pricing from "@/pages/pricing";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -58,6 +61,7 @@ function PublicRoute({ component: Component }: { component: React.ComponentType 
 function Router() {
   return (
     <Switch>
+      <Route path="/landing" component={Landing} />
       <Route path="/login" component={() => <PublicRoute component={Login} />} />
       <Route path="/register" component={() => <PublicRoute component={Register} />} />
       
@@ -90,6 +94,14 @@ function Router() {
           <ProtectedRoute component={Descriptions} />
         </MainLayout>
       } />
+      
+      <Route path="/pricing" component={() => 
+        <MainLayout>
+          <ProtectedRoute component={Pricing} />
+        </MainLayout>
+      } />
+      
+      <Route path="/webhook-callback" component={WebhookCallback} />
       
       <Route component={NotFound} />
     </Switch>

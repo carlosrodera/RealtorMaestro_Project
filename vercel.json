@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "mkdir -p public && cp -r vercel-build/* public/",
+  "outputDirectory": "public",
+  "functions": {
+    "api/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    { "source": "/api/health", "destination": "/api/health.js" },
+    { "source": "/api/users", "destination": "/api/users.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+} 

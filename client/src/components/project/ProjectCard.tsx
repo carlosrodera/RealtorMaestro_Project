@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Project } from "@shared/schema";
+import { StoredProject } from "@/lib/localStorage";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,7 @@ import {
 import { useProjects } from "@/hooks/use-projects";
 
 interface ProjectCardProps {
-  project: Project;
+  project: StoredProject;
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {

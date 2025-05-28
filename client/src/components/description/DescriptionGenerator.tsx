@@ -29,7 +29,7 @@ type Step = 'property-info' | 'images' | 'style' | 'result';
 interface DescriptionGeneratorProps {
   isOpen: boolean;
   onClose: () => void;
-  projectId?: number;
+  projectId?: string;
 }
 
 export function DescriptionGenerator({ isOpen, onClose, projectId }: DescriptionGeneratorProps) {
