@@ -1,0 +1,7 @@
+# Netlify redirects for SPA
+
+# Serve static files directly
+/webhook-receiver.html    /webhook-receiver.html   200!
+
+# Handle all other routes through index.html for client-side routing
+/*    /index.html   200

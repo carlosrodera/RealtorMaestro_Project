@@ -24,18 +24,25 @@ export class WebhookHandler {
   private startPolling() {
     // Poll every 2 seconds for webhook responses
     this.pollingInterval = window.setInterval(() => {
-      const responses = JSON.parse(localStorage.getItem('realtor360_webhook_responses') || '[]');
-      
-      if (responses.length > 0) {
-        // Process each response
-        responses.forEach((response: any) => {
-          if (response.transformationId) {
-            this.processTransformationComplete(response);
-          }
-        });
+      try {
+        const responses = JSON.parse(localStorage.getItem('realtor360_webhook_responses') || '[]');
         
-        // Clear processed responses
-        localStorage.removeItem('realtor360_webhook_responses');
+        if (responses.length > 0) {
+          console.log('Webhook responses found:', responses);
+          
+          // Process each response
+          responses.forEach((response: any) => {
+            if (response.transformationId) {
+              console.log('Processing transformation:', response.transformationId);
+              this.processTransformationComplete(response);
+            }
+          });
+          
+          // Clear processed responses
+          localStorage.removeItem('realtor360_webhook_responses');
+        }
+      } catch (error) {
+        console.error('Error in webhook polling:', error);
       }
     }, 2000);
   }
@@ -74,20 +81,28 @@ export class WebhookHandler {
   private processTransformationComplete(data: any) {
     const { transformationId, imageUrl, error } = data;
     
-    if (!transformationId) return;
+    console.log('Processing transformation complete:', { transformationId, imageUrl, error });
+    
+    if (!transformationId) {
+      console.warn('No transformationId provided');
+      return;
+    }
     
     if (error) {
+      console.error('Transformation failed:', error);
       transformationsStorage.update(transformationId, {
         status: 'failed',
         errorMessage: error,
         completedAt: new Date().toISOString()
       });
     } else if (imageUrl) {
-      transformationsStorage.update(transformationId, {
+      console.log('Transformation successful, updating with image:', imageUrl);
+      const updateResult = transformationsStorage.update(transformationId, {
         status: 'completed',
         transformedImage: imageUrl,
         completedAt: new Date().toISOString()
       });
+      console.log('Update result:', updateResult);
       
       // Show notification
       if ('Notification' in window && Notification.permission === 'granted') {
@@ -96,11 +111,19 @@ export class WebhookHandler {
           icon: '/favicon.ico'
         });
       }
+    } else {
+      console.warn('No imageUrl or error provided');
+      transformationsStorage.update(transformationId, {
+        status: 'failed',
+        errorMessage: 'No se recibió imagen transformada',
+        completedAt: new Date().toISOString()
+      });
     }
     
     // Trigger any registered listeners
     const listener = this.listeners.get(`transformation-${transformationId}`);
     if (listener) {
+      console.log('Triggering listener for transformation:', transformationId);
       listener(data);
       this.listeners.delete(`transformation-${transformationId}`);
     }

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webhook Receiver</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+        }
+        h2 {
+            margin: 0 0 1rem 0;
+            color: #1f2937;
+        }
+        p {
+            color: #6b7280;
+            margin: 0;
+        }
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin: 1rem auto;
+        }
+        .spinner:after {
+            content: " ";
+            display: block;
+            width: 32px;
+            height: 32px;
+            margin: 4px;
+            border-radius: 50%;
+            border: 3px solid #3b82f6;
+            border-color: #3b82f6 transparent #3b82f6 transparent;
+            animation: spinner 1.2s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .debug {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f3f4f6;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            text-align: left;
+            font-family: monospace;
+        }
+    </style>
+    <script>
+        // Log para debug
+        console.log('Webhook receiver loaded');
+        console.log('URL:', window.location.href);
+        
+        // Get query parameters
+        const params = new URLSearchParams(window.location.search);
+        const transformationId = params.get('transformationId');
+        const imageUrl = params.get('imageUrl');
+        const type = params.get('type');
+        const error = params.get('error');
+        
+        console.log('Params received:', {
+            transformationId,
+            imageUrl,
+            type,
+            error
+        });
+        
+        // Mostrar debug info
+        window.addEventListener('DOMContentLoaded', () => {
+            const debugEl = document.getElementById('debug');
+            if (debugEl) {
+                debugEl.innerHTML = `
+                    <strong>Parámetros recibidos:</strong><br>
+                    transformationId: ${transformationId || 'null'}<br>
+                    imageUrl: ${imageUrl || 'null'}<br>
+                    type: ${type || 'null'}<br>
+                    error: ${error || 'null'}
+                `;
+            }
+        });
+        
+        // Procesar respuesta si es de tipo transformation
+        if (type === 'transformation' && transformationId) {
+            console.log('Processing transformation response');
+            
+            // Store in localStorage for the app to pick up
+            const webhookData = {
+                transformationId,
+                imageUrl: imageUrl || null,
+                error: error || null,
+                timestamp: Date.now()
+            };
+            
+            try {
+                // Get existing webhook responses
+                const existingResponses = JSON.parse(localStorage.getItem('realtor360_webhook_responses') || '[]');
+                existingResponses.push(webhookData);
+                
+                // Keep only last 10 responses
+                if (existingResponses.length > 10) {
+                    existingResponses.shift();
+                }
+                
+                localStorage.setItem('realtor360_webhook_responses', JSON.stringify(existingResponses));
+                console.log('Webhook data stored in localStorage:', webhookData);
+                
+                // Send message to opener window if exists
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'n8n-transformation-complete',
+                        payload: webhookData
+                    }, '*');
+                }
+                
+                // Also try to send to parent (for iframe scenarios)
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'n8n-transformation-complete',
+                        payload: webhookData
+                    }, '*');
+                }
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    if (window.opener) {
+                        window.close();
+                    } else {
+                        window.location.href = '/transformations';
+                    }
+                }, 2000);
+                
+            } catch (e) {
+                console.error('Error processing webhook:', e);
+            }
+        } else {
+            console.log('No valid transformation data received');
+            // Still redirect after showing the message
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>Procesando respuesta...</h2>
+        <p id="message">Recibiendo datos del servidor...</p>
+        <div id="debug" class="debug"></div>
+    </div>
+</body>
+</html>
