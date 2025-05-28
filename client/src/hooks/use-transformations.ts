@@ -85,6 +85,20 @@ export function useTransformations(projectId?: string) {
         formData.append('annotations', JSON.stringify(transformationData.annotations || {}));
         formData.append('callbackUrl', `${window.location.origin}/webhook-callback?type=transformation`);
         
+        // Log what we're sending to n8n
+        console.log('=== SENDING TO N8N ===');
+        console.log('Transformation ID:', transformation.id);
+        console.log('Style:', transformationData.style);
+        console.log('Callback URL:', `${window.location.origin}/webhook-callback?type=transformation`);
+        console.log('FormData entries:');
+        for (let [key, value] of formData.entries()) {
+          if (key === 'image') {
+            console.log(`  ${key}: [File] ${(value as File).name} (${(value as File).size} bytes)`);
+          } else {
+            console.log(`  ${key}: ${value}`);
+          }
+        }
+        
         const response = await fetch('https://agenteia.top/webhook-test/transform-image', {
           method: 'POST',
           body: formData

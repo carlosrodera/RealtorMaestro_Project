@@ -14,6 +14,7 @@ import Descriptions from "@/pages/descriptions";
 import WebhookCallback from "@/pages/webhook-callback";
 import Landing from "@/pages/landing";
 import Pricing from "@/pages/pricing";
+import Debug from "@/pages/debug";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/use-auth";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -102,6 +103,12 @@ function Router() {
       } />
       
       <Route path="/webhook-callback" component={WebhookCallback} />
+      
+      <Route path="/debug" component={() => 
+        <MainLayout>
+          <ProtectedRoute component={Debug} />
+        </MainLayout>
+      } />
       
       <Route component={NotFound} />
     </Switch>
