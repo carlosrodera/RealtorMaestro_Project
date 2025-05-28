@@ -6,6 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 RealtorMaestro (Realtor 360) is a **standalone MVP** real estate application with AI-powered image transformation and property description generation. **No database required** - everything runs with LocalStorage.
 
+**Live Demo**: https://silly-pothos-e6feaa.netlify.app  
+**Credentials**: `demo` / `demo123`
+
 ## Development Commands
 
 ```bash
@@ -34,18 +37,21 @@ npm run clean && npm install
 - **No active backend** - Everything runs client-side with LocalStorage
 
 ### Key Technologies
-- Frontend: React 18, TypeScript, Vite, TanStack Query, Tailwind CSS
+- Frontend: React 18, TypeScript, Vite, TanStack Query, Tailwind CSS, Wouter
+- UI Components: Radix UI, Lucide Icons, RemixIcon
 - Storage: LocalStorage (no database)
 - Auth: Simple demo auth (demo/demo123)
 - External: n8n webhooks for AI processing
+- Image Editor: Fabric.js
 
 ### LocalStorage Structure
 ```javascript
-realtor360_user        // Current user session
-realtor360_projects    // User projects (max 10)
-realtor360_transformations // Image transformations (max 10)
-realtor360_descriptions    // Property descriptions (max 10)
-realtor360_credits      // User credits
+realtor360_user            // Current user session
+realtor360_projects        // User projects (max 10)
+realtor360_transformations // Image transformations (max 5 recent)
+realtor360_descriptions    // Property descriptions (max 5 recent)
+realtor360_credits         // User credits
+realtor360_webhook_responses // Temporary webhook responses
 ```
 
 ## Key Features & Implementation
@@ -57,34 +63,48 @@ realtor360_credits      // User credits
 
 ### 2. Image Transformation Flow
 ```javascript
-1. User uploads image (base64)
+1. User uploads image → Converted to JPEG if needed
 2. Editor with Fabric.js (drawing tools, shapes, text)
-3. Send to n8n webhook: https://agenteia.top/webhook-test/transform-image
-4. Webhook returns transformed image URL
-5. Display with before/after slider
+3. Send as FormData to n8n: https://agenteia.top/webhook-test/transform-image
+4. n8n processes and callbacks to: /webhook-receiver.html
+5. App polls LocalStorage for response
+6. Display with before/after slider
 ```
 
 ### 3. Credits System (Demo Only)
 - Free: 5 credits
-- Basic: 20 credits ($19 demo)
-- Pro: 100 credits ($49 demo)
+- Professional: 100 credits (€29 demo)
+- Enterprise: Unlimited (€99 demo)
 - No real payments - instant "upgrade" for demo
 
 ### 4. n8n Integration
-- Webhook endpoint expects JPEG images
-- Callback via `/webhook-callback` route
+- Webhook expects binary JPEG (not base64)
+- Callback to: `https://[your-domain]/webhook-receiver.html`
 - Google Drive storage for transformed images
-- See `CONFIGURACION_N8N.md` for setup
+- See `CONFIGURACION_N8N.md` and `N8N_WEBHOOK_UPDATE.md`
+
+## Recent Updates (January 2025)
+
+### Fixed Issues:
+- ✅ All 404 navigation errors resolved
+- ✅ LocalStorage quota exceeded error fixed
+- ✅ Webhook callback handling improved
+- ✅ UI/UX completely revamped
+- ✅ Added "100% Personalizado" style option
+
+### New Features:
+- Professional landing page with testimonials
+- Improved dashboard with quick actions
+- Visual loading states for transformations
+- Better error handling and user feedback
+- Responsive design improvements
 
 ## Deployment
 
-### Netlify (Recommended)
-```bash
-npm run build
-# Drag 'dist' folder to Netlify
-```
-
-Configuration already included in `netlify.toml`
+### Netlify (Current)
+- Auto-deploys from GitHub main branch
+- Configuration in `netlify.toml`
+- Static webhook receiver at `/webhook-receiver.html`
 
 ### Local Development
 - No environment variables needed
@@ -94,10 +114,10 @@ Configuration already included in `netlify.toml`
 ## Important Notes
 
 1. **Demo Mode Only** - Not production-ready
-2. **Storage Limits** - Max 10 items per category in LocalStorage
-3. **No Real AI** - n8n webhook must be configured separately
+2. **Storage Limits** - Automatic cleanup of old items
+3. **n8n Required** - Must configure external webhook
 4. **Credits Demo** - No real payment processing
-5. **Public Webhooks** - Callback URLs are exposed
+5. **Public URLs** - All deployed to Netlify
 
 ## Common Tasks
 
@@ -108,24 +128,34 @@ Edit `/client/src/components/transformation/StyleSelector.tsx`
 Edit `/client/src/lib/localStorage.ts` → `creditsStorage`
 
 ### Modify webhook URL
-Edit `/client/src/hooks/use-transformations.ts` → Line 71
+Edit `/client/src/hooks/use-transformations.ts` → Line 84
 
-### Add demo data
-Edit `/client/src/lib/demoData.ts`
+### Update n8n callback URL
+Change HTTP Request node to use `/webhook-receiver.html`
 
 ## File Structure
 ```
 /client/src/
   /components/
-    /transformation/  # Image editor components
-    /description/     # Description generator
-    /ui/             # Radix UI components
-  /hooks/            # React hooks (localStorage-based)
+    /transformation/   # Image editor components
+    /description/      # Description generator
+    /ui/               # Radix UI components
+    /layout/           # Navbar, Sidebar, MainLayout
+    /project/          # Project management
+  /hooks/              # React hooks (localStorage-based)
   /lib/
-    localStorage.ts  # All data persistence
-    webhookReceiver.ts # n8n callback handler
-  /pages/            # Route components
+    localStorage.ts    # All data persistence
+    webhookReceiver.ts # n8n callback handler + polling
+  /pages/              # Route components
+  /contexts/           # Auth context
 ```
+
+## Known Limitations
+
+1. **Binary Image Upload** - n8n expects FormData, not JSON
+2. **Webhook Callback** - Must use static HTML, not React routes
+3. **LocalStorage Polling** - 2-second interval for webhook responses
+4. **No Real Backend** - All data in browser storage
 
 ## Testing Webhooks Locally
 
@@ -135,3 +165,9 @@ Since n8n can't reach localhost, use:
 3. **Cloudflare Tunnel**: For permanent URLs
 
 Then update callback URL in the webhook payload.
+
+## Support Files
+
+- `VERIFICACION_FLUJO_N8N.md` - Complete flow verification
+- `N8N_WEBHOOK_UPDATE.md` - Webhook configuration update
+- `CONFIGURACION_N8N.md` - Original n8n setup
