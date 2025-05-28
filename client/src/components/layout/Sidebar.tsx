@@ -71,9 +71,9 @@ export default function Sidebar({ isOpen }: SidebarProps) {
               ) : (
                 filteredProjects?.map((project) => (
                   <Link key={project.id} href={`/projects/${project.id}`}>
-                    <a
+                    <div
                       className={cn(
-                        "block px-3 py-2 rounded-md",
+                        "block px-3 py-2 rounded-md cursor-pointer",
                         location === `/projects/${project.id}`
                           ? "bg-primary-50 text-primary-700 font-medium"
                           : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
@@ -92,7 +92,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                           {location === `/projects/${project.id}` ? "Activo" : "3 imgs"}
                         </span>
                       </div>
-                    </a>
+                    </div>
                   </Link>
                 ))
               )}
@@ -106,23 +106,21 @@ export default function Sidebar({ isOpen }: SidebarProps) {
           </h3>
           <nav className="mt-2">
             <Link href="/transformations">
-              <a className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <div className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 cursor-pointer">
                 <i className="ri-image-edit-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
                 Transformación de Imágenes
-              </a>
+              </div>
             </Link>
             <Link href="/descriptions">
-              <a className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <div className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 cursor-pointer">
                 <i className="ri-file-edit-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
                 Generación de Descripciones
-              </a>
+              </div>
             </Link>
-            <Link href="/presentation">
-              <a className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                <i className="ri-presentation-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                Modo Presentación
-              </a>
-            </Link>
+            <div className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-400 cursor-not-allowed">
+              <i className="ri-presentation-line mr-3 text-gray-400"></i>
+              Modo Presentación (Próximamente)
+            </div>
           </nav>
         </div>
         
@@ -131,24 +129,22 @@ export default function Sidebar({ isOpen }: SidebarProps) {
             Configuración
           </h3>
           <nav className="mt-2">
-            <Link href="/profile">
-              <a className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+            <Link href="/pricing">
+              <div className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 cursor-pointer">
                 <i className="ri-user-settings-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
                 Perfil y Cuenta
-              </a>
+              </div>
             </Link>
             <Link href="/pricing">
-              <a className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+              <div className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50 cursor-pointer">
                 <i className="ri-bank-card-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
                 Planes y Créditos
-              </a>
+              </div>
             </Link>
-            <Link href="/support">
-              <a className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                <i className="ri-question-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                Ayuda y Soporte
-              </a>
-            </Link>
+            <div className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-400 cursor-not-allowed">
+              <i className="ri-question-line mr-3 text-gray-400"></i>
+              Ayuda y Soporte (Próximamente)
+            </div>
           </nav>
         </div>
       </aside>

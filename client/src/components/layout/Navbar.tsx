@@ -45,7 +45,7 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
                 <Link key={item.path} href={item.path}>
                   <div
                     className={`${
-                      location === item.path
+                      (item.path === "/" ? location === "/" : location.startsWith(item.path))
                         ? "border-primary text-gray-900"
                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                     } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium cursor-pointer`}
@@ -85,19 +85,17 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
                 <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/profile">
+                  <Link href="/pricing">
                     <div className="flex w-full cursor-pointer">Perfil y Cuenta</div>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/subscription">
+                  <Link href="/pricing">
                     <div className="flex w-full cursor-pointer">Suscripción</div>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/support">
-                    <div className="flex w-full cursor-pointer">Ayuda y Soporte</div>
-                  </Link>
+                <DropdownMenuItem>
+                  <div className="flex w-full cursor-pointer text-gray-400">Ayuda y Soporte (Próximamente)</div>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => logout()}>Cerrar sesión</DropdownMenuItem>

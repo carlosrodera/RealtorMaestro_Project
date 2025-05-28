@@ -46,7 +46,7 @@ export default function Dashboard() {
           <p className="mt-1 text-sm text-gray-500">Bienvenido, {user?.fullName || user?.username}</p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-3">
-          <Link href="/projects/new">
+          <Link href="/projects">
             <Button>
               <PlusCircle className="h-4 w-4 mr-2" />
               Nuevo Proyecto
@@ -147,13 +147,13 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <Link href="/transformations/new">
+              <Link href="/transformations">
                 <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center">
                   <Image className="h-6 w-6 mb-2" />
                   <span className="text-sm">Nueva Transformación</span>
                 </Button>
               </Link>
-              <Link href="/descriptions/new">
+              <Link href="/descriptions">
                 <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center">
                   <FileText className="h-6 w-6 mb-2" />
                   <span className="text-sm">Nueva Descripción</span>
@@ -165,7 +165,7 @@ export default function Dashboard() {
                   <span className="text-sm">Gestionar Proyectos</span>
                 </Button>
               </Link>
-              <Link href="/profile">
+              <Link href="/pricing">
                 <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center">
                   <Layers className="h-6 w-6 mb-2" />
                   <span className="text-sm">Mi Suscripción</span>
@@ -215,9 +215,11 @@ export default function Dashboard() {
               </div>
               
               {user?.plan === 'free' && (
-                <Button className="w-full mt-4">
-                  Mejorar a Plan Profesional
-                </Button>
+                <Link href="/pricing">
+                  <Button className="w-full mt-4">
+                    Mejorar a Plan Profesional
+                  </Button>
+                </Link>
               )}
             </div>
           </CardContent>
@@ -273,7 +275,7 @@ export default function Dashboard() {
               <Briefcase className="h-10 w-10 text-gray-400 mx-auto mb-2" />
               <h3 className="text-base font-medium text-gray-900">No hay proyectos</h3>
               <p className="text-sm text-gray-500 mt-1">Comienza creando tu primer proyecto</p>
-              <Link href="/projects/new">
+              <Link href="/projects">
                 <Button className="mt-4">
                   <PlusCircle className="h-4 w-4 mr-2" />
                   Nuevo Proyecto

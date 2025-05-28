@@ -127,12 +127,19 @@ export function TransformationHistory({ transformations, onDelete }: Transformat
         {transformations.map((transformation) => (
           <Card key={transformation.id} className="overflow-hidden">
             <div className="aspect-video relative bg-gray-100">
-              {transformation.originalImage && (
+              {transformation.originalImage && transformation.originalImage !== 'processing' ? (
                 <img
                   src={transformation.originalImage}
                   alt="Original"
                   className="w-full h-full object-cover"
                 />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <Loader2 className="h-8 w-8 text-gray-400 animate-spin mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Procesando imagen...</p>
+                  </div>
+                </div>
               )}
               {transformation.status === 'completed' && transformation.transformedImage && (
                 <Button
