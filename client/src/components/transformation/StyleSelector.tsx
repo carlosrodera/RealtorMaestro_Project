@@ -15,6 +15,11 @@ interface StyleOption {
 export function StyleSelector({ selectedStyle, onSelectStyle }: StyleSelectorProps) {
   const styleOptions: StyleOption[] = [
     {
+      id: 'custom',
+      name: '100% Personalizado',
+      imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=150&q=80'
+    },
+    {
       id: 'modern',
       name: 'Moderno',
       imageUrl: 'https://pixabay.com/get/gdbf35902ba28add6e605a54194d85fdd27d254385c31d3119b012f9d3cce77e93e4100c6b419e4e494f18f8b3c542ffb668f67a950a72d700d157e13b3f0e3e8_1280.jpg'

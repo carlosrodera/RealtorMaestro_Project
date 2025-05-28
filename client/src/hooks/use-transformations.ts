@@ -84,7 +84,7 @@ export function useTransformations(projectId?: string) {
             style: transformationData.style,
             prompt: transformationData.customPrompt,
             annotations: transformationData.annotations,
-            callbackUrl: `${window.location.origin}/webhook-callback`
+            callbackUrl: `${window.location.origin}/webhook-callback?type=transformation`
           })
         });
         

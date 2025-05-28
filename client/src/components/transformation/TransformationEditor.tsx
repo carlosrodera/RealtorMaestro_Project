@@ -150,8 +150,8 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
 
   // Watch for transformation status changes
   useEffect(() => {
-    if (transformation && transformation.status === 'completed' && transformation.transformedImagePath) {
-      setTransformedImageUrl(transformation.transformedImagePath);
+    if (transformation && transformation.status === 'completed' && transformation.transformedImage) {
+      setTransformedImageUrl(transformation.transformedImage);
       setCurrentStep('result');
       setIsSubmitting(false);
 
@@ -160,7 +160,7 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
         title: 'Transformación completada',
         description: 'La imagen ha sido transformada exitosamente.',
       });
-    } else if (transformation && transformation.status === 'error') {
+    } else if (transformation && transformation.status === 'failed') {
       setIsSubmitting(false);
 
       // Mostrar notificación de error
