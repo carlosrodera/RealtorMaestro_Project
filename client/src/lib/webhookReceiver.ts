@@ -179,14 +179,48 @@ export class WebhookHandler {
       this.processDescriptionComplete({ descriptionId: id, ...data });
     }
   }
+  
+  // Manual process pending responses
+  public processPendingResponses() {
+    console.log('Manually processing pending webhook responses...');
+    try {
+      const responses = JSON.parse(localStorage.getItem('realtor360_webhook_responses') || '[]');
+      console.log(`Found ${responses.length} pending responses`);
+      
+      if (responses.length > 0) {
+        responses.forEach((response: any) => {
+          if (response.transformationId) {
+            console.log('Processing pending transformation:', response.transformationId);
+            this.processTransformationComplete(response);
+          }
+        });
+        
+        // Clear processed responses
+        localStorage.removeItem('realtor360_webhook_responses');
+        console.log('Cleared webhook responses from localStorage');
+      }
+    } catch (error) {
+      console.error('Error processing pending responses:', error);
+    }
+  }
 }
 
 // Initialize global webhook handler
 export function getWebhookHandler(): WebhookHandler {
   if (!webhookHandler) {
     webhookHandler = new WebhookHandler();
+    // Expose for debugging
+    if (typeof window !== 'undefined') {
+      (window as any).__webhookHandler = webhookHandler;
+      console.log('WebhookHandler initialized and exposed as window.__webhookHandler');
+    }
   }
   return webhookHandler;
+}
+
+// Auto-initialize on import
+if (typeof window !== 'undefined') {
+  getWebhookHandler();
 }
 
 // Helper function to convert image to proper format for n8n
