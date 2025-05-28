@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webhook Receiver</title>
+    <script>
+        // Get query parameters
+        const params = new URLSearchParams(window.location.search);
+        const transformationId = params.get('transformationId');
+        const imageUrl = params.get('imageUrl');
+        const type = params.get('type');
+        const error = params.get('error');
+        
+        if (transformationId && imageUrl && type === 'transformation') {
+            // Store in localStorage for the app to pick up
+            const webhookData = {
+                transformationId,
+                imageUrl,
+                error,
+                timestamp: Date.now()
+            };
+            
+            // Get existing webhook responses
+            const existingResponses = JSON.parse(localStorage.getItem('realtor360_webhook_responses') || '[]');
+            existingResponses.push(webhookData);
+            
+            // Keep only last 10 responses
+            if (existingResponses.length > 10) {
+                existingResponses.shift();
+            }
+            
+            localStorage.setItem('realtor360_webhook_responses', JSON.stringify(existingResponses));
+            
+            // Send message to opener window if exists
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'n8n-transformation-complete',
+                    payload: webhookData
+                }, '*');
+            }
+            
+            // Close window or redirect
+            setTimeout(() => {
+                if (window.opener) {
+                    window.close();
+                } else {
+                    window.location.href = '/transformations';
+                }
+            }, 1000);
+        }
+    </script>
+</head>
+<body>
+    <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif;">
+        <div style="text-align: center;">
+            <h2>Procesando respuesta...</h2>
+            <p>Redirigiendo en un momento...</p>
+        </div>
+    </div>
+</body>
+</html>

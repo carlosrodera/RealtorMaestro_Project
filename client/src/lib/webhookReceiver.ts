@@ -6,6 +6,7 @@ let webhookHandler: WebhookHandler | null = null;
 
 export class WebhookHandler {
   private listeners: Map<string, (data: any) => void> = new Map();
+  private pollingInterval: number | null = null;
   
   constructor() {
     // Set up global message listener for webhook responses
@@ -14,7 +15,29 @@ export class WebhookHandler {
       
       // Also listen for custom events that might be triggered by n8n
       window.addEventListener('n8n-webhook-response', this.handleWebhookEvent.bind(this));
+      
+      // Start polling for webhook responses in localStorage
+      this.startPolling();
     }
+  }
+  
+  private startPolling() {
+    // Poll every 2 seconds for webhook responses
+    this.pollingInterval = window.setInterval(() => {
+      const responses = JSON.parse(localStorage.getItem('realtor360_webhook_responses') || '[]');
+      
+      if (responses.length > 0) {
+        // Process each response
+        responses.forEach((response: any) => {
+          if (response.transformationId) {
+            this.processTransformationComplete(response);
+          }
+        });
+        
+        // Clear processed responses
+        localStorage.removeItem('realtor360_webhook_responses');
+      }
+    }, 2000);
   }
   
   private handleMessage(event: MessageEvent) {
