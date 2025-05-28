@@ -70,22 +70,20 @@ export function useTransformations(projectId?: string) {
       // Send to n8n webhook
       try {
         // Prepare image for n8n (convert to JPEG if needed)
-        const { base64, mimeType } = await prepareImageForN8n(transformationData.originalImagePath);
+        const { blob } = await prepareImageForN8n(transformationData.originalImagePath);
+        
+        // Create FormData for multipart upload
+        const formData = new FormData();
+        formData.append('image', blob, 'image.jpg');
+        formData.append('transformationId', transformation.id);
+        formData.append('style', transformationData.style);
+        formData.append('prompt', transformationData.customPrompt || '');
+        formData.append('annotations', JSON.stringify(transformationData.annotations || {}));
+        formData.append('callbackUrl', `${window.location.origin}/webhook-callback?type=transformation`);
         
         const response = await fetch('https://agenteia.top/webhook-test/transform-image', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            transformationId: transformation.id,
-            image: base64,
-            mimeType: mimeType,
-            style: transformationData.style,
-            prompt: transformationData.customPrompt,
-            annotations: transformationData.annotations,
-            callbackUrl: `${window.location.origin}/webhook-callback?type=transformation`
-          })
+          body: formData
         });
         
         if (!response.ok) {

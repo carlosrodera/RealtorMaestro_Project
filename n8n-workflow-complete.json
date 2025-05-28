@@ -1,0 +1,233 @@
+{
+  "name": "RealtorMaestro - Transformación de Imágenes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "transform-image",
+        "responseMode": "responseNode",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [220, 300],
+      "id": "webhook-node"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extraer datos del webhook\nconst items = [];\n\nfor (const item of $input.all()) {\n  const transformationId = item.json.transformationId;\n  const imageBase64 = item.json.image;\n  const style = item.json.style || 'modern';\n  const prompt = item.json.prompt || '';\n  const callbackUrl = item.json.callbackUrl;\n  \n  // Validar datos requeridos\n  if (!transformationId || !imageBase64 || !callbackUrl) {\n    throw new Error('Faltan datos requeridos');\n  }\n  \n  items.push({\n    json: {\n      transformationId,\n      imageBase64,\n      style,\n      prompt,\n      callbackUrl,\n      // Crear el prompt completo para la transformación\n      fullPrompt: `Transform this real estate image with ${style} style. ${prompt}`.trim()\n    }\n  });\n}\n\nreturn items;"
+      },
+      "name": "Procesar Datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "name": "={{ $json.transformationId }}.jpg",
+        "binaryPropertyName": "imageData",
+        "folderId": "1your-google-drive-folder-id",
+        "options": {
+          "appPropertiesUi": {
+            "appPropertyValues": [
+              {
+                "key": "transformationId",
+                "value": "={{ $json.transformationId }}"
+              },
+              {
+                "key": "style",
+                "value": "={{ $json.style }}"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Guardar en Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 2,
+      "position": [820, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "imageData",
+        "jsonKey": "imageBase64",
+        "dataPropertyName": "imageData",
+        "encoding": "base64",
+        "mimeType": "image/jpeg",
+        "fileName": "={{ $json.transformationId }}.jpg"
+      },
+      "name": "Convertir Base64 a Binario",
+      "type": "n8n-nodes-base.moveBinaryData",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $node['Procesar Datos'].json.callbackUrl }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "transformationId",
+              "value": "={{ $json.transformationId }}"
+            },
+            {
+              "name": "imageUrl",
+              "value": "={{ $json.webViewLink }}"
+            },
+            {
+              "name": "type",
+              "value": "transformation"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "ignoreResponseCode": true
+        }
+      },
+      "name": "Callback a la App",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1020, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, message: 'Transformación iniciada', transformationId: $node['Procesar Datos'].json.transformationId }) }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Responder al Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [620, 500]
+    },
+    {
+      "parameters": {
+        "url": "={{ $node['Procesar Datos'].json.callbackUrl }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "transformationId",
+              "value": "={{ $node['Procesar Datos'].json.transformationId }}"
+            },
+            {
+              "name": "error",
+              "value": "={{ $json.error.message || 'Error al procesar la imagen' }}"
+            },
+            {
+              "name": "type",
+              "value": "transformation"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000,
+          "ignoreResponseCode": true
+        }
+      },
+      "name": "Callback Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1020, 500]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Procesar Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar Datos": {
+      "main": [
+        [
+          {
+            "node": "Convertir Base64 a Binario",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Responder al Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convertir Base64 a Binario": {
+      "main": [
+        [
+          {
+            "node": "Guardar en Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar en Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Callback a la App",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Callback Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  }
+}

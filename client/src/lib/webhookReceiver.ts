@@ -144,7 +144,7 @@ export function getWebhookHandler(): WebhookHandler {
 }
 
 // Helper function to convert image to proper format for n8n
-export async function prepareImageForN8n(imageDataUrl: string): Promise<{ base64: string; mimeType: string }> {
+export async function prepareImageForN8n(imageDataUrl: string): Promise<{ blob: Blob; mimeType: string }> {
   // Extract mime type and base64 data
   const matches = imageDataUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
   if (!matches || matches.length !== 3) {
@@ -152,7 +152,6 @@ export async function prepareImageForN8n(imageDataUrl: string): Promise<{ base64
   }
   
   const mimeType = matches[1];
-  const base64 = matches[2];
   
   // If it's not JPEG, convert it
   if (mimeType !== 'image/jpeg') {
@@ -175,19 +174,32 @@ export async function prepareImageForN8n(imageDataUrl: string): Promise<{ base64
     
     ctx.drawImage(img, 0, 0);
     
-    // Convert to JPEG base64
-    const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-    const jpegMatches = jpegDataUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    
-    if (!jpegMatches || jpegMatches.length !== 3) {
-      throw new Error('Failed to convert image to JPEG');
-    }
+    // Convert to JPEG blob
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Failed to convert image to blob'));
+        }
+      }, 'image/jpeg', 0.9);
+    });
     
     return {
-      base64: jpegMatches[2],
+      blob,
       mimeType: 'image/jpeg'
     };
   }
   
-  return { base64, mimeType };
+  // Convert base64 to blob for JPEG
+  const base64 = matches[2];
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'image/jpeg' });
+  
+  return { blob, mimeType };
 }
