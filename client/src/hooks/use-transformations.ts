@@ -195,10 +195,8 @@ export function useTransformations(projectId?: string) {
     if (!window._transformationCheckerInitialized) {
       window._transformationCheckerInitialized = true;
       
-      // Request notification permission
-      if ('Notification' in window && Notification.permission !== 'granted') {
-        Notification.requestPermission();
-      }
+      // Request notification permission only on user action
+      // Removed automatic permission request to avoid browser warning
       
       // Check every 10 seconds
       setInterval(() => {

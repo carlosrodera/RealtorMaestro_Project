@@ -21,6 +21,7 @@ import { Check, Upload, Edit2, Brush, Image as ImageIcon, ArrowLeft, ArrowRight,
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
+import { transformationsStorage } from '@/lib/localStorage';
 
 type Step = 'upload' | 'edit' | 'style' | 'result';
 
@@ -54,8 +55,13 @@ export function TransformationEditor({ isOpen, onClose, projectId }: Transformat
 
   // Necesitamos usar el hook para la transformación actual
   const { data: transformation } = useQuery({
-    queryKey: transformationId ? [`/api/transformations/${transformationId}`] : [],
+    queryKey: transformationId ? ['transformation', transformationId] : [],
+    queryFn: () => {
+      const trans = transformationsStorage.get(transformationId!);
+      return trans;
+    },
     enabled: !!transformationId,
+    refetchInterval: 2000, // Poll every 2 seconds
   });
 
   // Initialize canvas when editor opens
